@@ -150,7 +150,7 @@ export default function ContentDetail() {
         .from('reviews')
         .select(`
           *,
-          profiles!reviews_user_id_fkey (full_name, avatar_url)
+          profiles (full_name, avatar_url)
         `)
         .eq('content_id', contentId)
         .order('created_at', { ascending: false });
