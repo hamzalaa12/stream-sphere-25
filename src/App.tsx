@@ -22,7 +22,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/content/:id" element={<ContentDetail />} />
-          <Route path="/watch/:id" element={<WatchPage type="content" />} />
+          <Route path="/watch/:id" element={<WatchPage type="movie" />} />
           <Route path="/watch/episode/:episodeId" element={<WatchPage type="episode" />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/profile" element={<Profile />} />
