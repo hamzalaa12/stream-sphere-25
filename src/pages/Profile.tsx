@@ -363,7 +363,16 @@ export default function Profile() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
                 {favorites.map((favorite) => (
                   <div key={favorite.id} className="relative group">
-                    <ContentCard content={favorite.content} />
+                     <ContentCard
+                        id={favorite.content.id}
+                        title={favorite.content.title}
+                        posterUrl={favorite.content.poster_url}
+                        rating={favorite.content.rating}
+                        year={favorite.content.release_date ? new Date(favorite.content.release_date).getFullYear() : undefined}
+                        type={favorite.content.content_type as 'movie' | 'series' | 'anime'}
+                        categories={favorite.content.categories}
+                        onClick={() => window.location.href = `/content/${favorite.content.id}`}
+                      />
                     <Button
                       size="sm"
                       variant="destructive"

@@ -148,10 +148,7 @@ export default function ContentDetail() {
     try {
       const { data, error } = await supabase
         .from('reviews')
-        .select(`
-          *,
-          profiles (full_name, avatar_url)
-        `)
+        .select('*')
         .eq('content_id', contentId)
         .order('created_at', { ascending: false });
 
