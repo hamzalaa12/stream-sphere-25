@@ -208,7 +208,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
 
       const arabicToEnum: Record<string, string> = {
         'أكشن': 'action', 'اكشن': 'action',
-        'دراما': 'drama', 'درامي': 'drama',
+        'دراما': 'drama', 'د��امي': 'drama',
         'كوميديا': 'comedy', 'كوميدي': 'comedy',
         'رومانسي': 'romance', 'رومانسية': 'romance',
         'إثارة': 'thriller', 'اثارة': 'thriller', 'مثير': 'thriller',
@@ -240,7 +240,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
 
       const contentData = {
         title: formData.title, // الاسم الإنجليزي كاسم رئيسي
-        title_en: formData.title_ar || null, // سنستخدم title_en للاسم العربي مؤقتاً
+        title_ar: formData.title_ar || null, // الاسم العربي
         alternative_titles: alternativeTitlesArray.length > 0 ? alternativeTitlesArray : null,
         description: formData.description || null,
         poster_url: formData.poster_url || null,
@@ -339,7 +339,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا المحتوى؟ سيتم حذف جميع المواسم والحلقات المرتبطة به.')) return;
+    if (!confirm('هل أنت متأكد من حذف هذ�� المحتوى؟ سيتم حذف جميع المواسم والحلقات المرتبطة به.')) return;
 
     try {
       const { error } = await supabase
