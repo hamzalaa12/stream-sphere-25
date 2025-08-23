@@ -317,7 +317,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
     setEditingContent(contentItem);
     setFormData({
       title: contentItem.title, // الاسم الإنجليزي
-      title_ar: contentItem.title_en || '', // الاسم العربي (كان محفوظ في title_en مؤقتاً)
+      title_ar: contentItem.title_ar || contentItem.title_en || '', // الاسم العربي
       alternative_titles: contentItem.alternative_titles?.join(', ') || '',
       content_type: contentItem.content_type,
       categories: contentItem.categories?.join(', ') || '',
@@ -567,7 +567,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    placeholder="اكتب وصف ��لعمل أو ملخص القصة"
+                    placeholder="اكتب وصف العمل أو ملخص القصة"
                     rows={4}
                   />
                 </div>
