@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import EnhancedContentManager from '@/components/admin/EnhancedContentManager';
+import EpisodeManager from '@/components/admin/EpisodeManager';
 import UserManager from '@/components/admin/UserManager';
 import StreamingLinksManager from '@/components/admin/StreamingLinksManager';
 
@@ -114,7 +115,7 @@ export default function Admin() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">لوحة الإدارة</h1>
-            <p className="text-muted-foreground">إدارة المحتوى والمستخدمين</p>
+            <p className="text-muted-foreground">إدارة ��لمحتوى والمستخدمين</p>
           </div>
         </div>
 
