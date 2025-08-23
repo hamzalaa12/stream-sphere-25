@@ -54,8 +54,9 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
 
   const [formData, setFormData] = useState({
     // البيانات الأساسية
-    title: '',
-    title_en: '',
+    title: '', // الاسم الرئيسي بالإنجليزية
+    title_ar: '', // الاسم بالعربية
+    alternative_titles: '', // أسماء أخرى مفصولة بفاصلة
     content_type: 'movie' as 'movie' | 'series' | 'anime',
     categories: '',
     release_date: '',
@@ -65,13 +66,13 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
     description: '',
     poster_url: '',
     backdrop_url: '',
-    
-    // البيانات الإضافية
+
+    // البيانات الإضا��ية
     age_rating: '',
     language: 'ar',
     duration: 0,
     tags: '',
-    
+
     // البيانات التقنية
     country: '',
     trailer_url: '',
