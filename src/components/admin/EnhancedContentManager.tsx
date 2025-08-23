@@ -228,9 +228,16 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
         return;
       }
 
+      // معالجة الأسماء البديلة
+      const alternativeTitlesArray = formData.alternative_titles
+        .split(',')
+        .map(title => title.trim())
+        .filter(title => title.length > 0);
+
       const contentData = {
-        title: formData.title,
-        title_en: formData.title_en || null,
+        title: formData.title, // الاسم الإنجليزي كاسم رئيسي
+        title_en: formData.title_ar || null, // سنستخدم title_en للاسم العربي مؤقتاً
+        alternative_titles: alternativeTitlesArray.length > 0 ? alternativeTitlesArray : null,
         description: formData.description || null,
         poster_url: formData.poster_url || null,
         backdrop_url: formData.backdrop_url || null,
@@ -381,7 +388,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
       <Card>
         <CardContent className="p-8 text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">جاري تحميل المحتوى...</p>
+          <p className="text-muted-foreground">جا��ي تحميل المحتوى...</p>
         </CardContent>
       </Card>
     );
@@ -418,7 +425,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Film className="h-5 w-5 text-primary" />
-                  <h3 className="text-lg font-semibold">البيانات الأساسية</h3>
+                  <h3 className="text-lg font-semibold">ا��بيانات الأساسية</h3>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
