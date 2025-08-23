@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import EnhancedContentManager from '@/components/admin/EnhancedContentManager';
 import EpisodeManager from '@/components/admin/EpisodeManager';
 import UserManager from '@/components/admin/UserManager';
-import StreamingLinksManager from '@/components/admin/StreamingLinksManager';
+import EnhancedStreamingLinksManager from '@/components/admin/EnhancedStreamingLinksManager';
 
 interface Stats {
   totalContent: number;
