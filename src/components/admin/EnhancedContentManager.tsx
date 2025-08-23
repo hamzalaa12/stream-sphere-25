@@ -67,7 +67,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
     poster_url: '',
     backdrop_url: '',
 
-    // البيانات الإضا��ية
+    // البيانات الإضافية
     age_rating: '',
     language: 'ar',
     duration: 0,
@@ -367,7 +367,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
       'thriller': 'إثارة',
       'horror': 'رعب',
       'sci-fi': 'خيال علمي',
-      'fantasy': 'فانتازيا',
+      'fantasy': 'فانتاز��ا',
       'documentary': 'وثائقي',
       'animation': 'رسوم متحركة'
     };
@@ -408,7 +408,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl">
-                {editingContent ? 'تعديل المحتوى' : 'إضافة محتوى جديد'}
+                {editingContent ? 'تعد��ل المحتوى' : 'إضافة محتوى جديد'}
               </DialogTitle>
             </DialogHeader>
             
@@ -422,23 +422,36 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="title">اسم العمل *</Label>
+                    <Label htmlFor="title">اسم العمل (الإنجليزي) *</Label>
                     <Input
                       id="title"
                       value={formData.title}
                       onChange={(e) => setFormData({...formData, title: e.target.value})}
-                      placeholder="اكتب اسم العمل بالعربية"
+                      placeholder="Enter English title"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="title_en">الاسم بالإنجليزية</Label>
+                    <Label htmlFor="title_ar">الاسم بالعربية</Label>
                     <Input
-                      id="title_en"
-                      value={formData.title_en}
-                      onChange={(e) => setFormData({...formData, title_en: e.target.value})}
-                      placeholder="English Title"
+                      id="title_ar"
+                      value={formData.title_ar}
+                      onChange={(e) => setFormData({...formData, title_ar: e.target.value})}
+                      placeholder="اكتب الاسم بالعربية"
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="alternative_titles">أسماء أخرى</Label>
+                  <Input
+                    id="alternative_titles"
+                    value={formData.alternative_titles}
+                    onChange={(e) => setFormData({...formData, alternative_titles: e.target.value})}
+                    placeholder="أدخل الأسماء البديلة مفصولة بفاصلة (مثال: الاسم الآخر، اسم ثالث)"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    يمكنك إضافة عدة أسماء بديلة مفصولة بفاصلة
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
