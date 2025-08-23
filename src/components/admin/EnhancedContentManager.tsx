@@ -16,8 +16,9 @@ import { Constants } from '@/integrations/supabase/types';
 
 interface Content {
   id: string;
-  title: string;
-  title_en?: string;
+  title: string; // الاسم الإنجليزي الرئيسي
+  title_ar?: string; // الاسم العربي
+  title_en?: string; // للتوافق مع البيانات القديمة
   alternative_titles?: string[];
   description?: string;
   poster_url?: string;
@@ -208,7 +209,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
 
       const arabicToEnum: Record<string, string> = {
         'أكشن': 'action', 'اكشن': 'action',
-        'دراما': 'drama', 'د��امي': 'drama',
+        'دراما': 'drama', 'درامي': 'drama',
         'كوميديا': 'comedy', 'كوميدي': 'comedy',
         'رومانسي': 'romance', 'رومانسية': 'romance',
         'إثارة': 'thriller', 'اثارة': 'thriller', 'مثير': 'thriller',
@@ -339,7 +340,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذ�� المحتوى؟ سيتم حذف جميع المواسم والحلقات المرتبطة به.')) return;
+    if (!confirm('هل أنت متأكد من حذف هذا المحتوى؟ سيتم حذف جميع المواسم والحلقات المرتبطة به.')) return;
 
     try {
       const { error } = await supabase
@@ -566,7 +567,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    placeholder="اكتب وصف العمل أو ملخص القصة"
+                    placeholder="اكتب وصف ��لعمل أو ملخص القصة"
                     rows={4}
                   />
                 </div>
