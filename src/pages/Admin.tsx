@@ -204,7 +204,7 @@ export default function Admin() {
           </TabsContent>
 
           <TabsContent value="streaming">
-            <StreamingLinksManager />
+            <EnhancedStreamingLinksManager />
           </TabsContent>
         </Tabs>
       </div>
