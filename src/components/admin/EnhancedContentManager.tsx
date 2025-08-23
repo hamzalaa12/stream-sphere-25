@@ -750,7 +750,18 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
               {item.title_en && (
                 <p className="text-sm text-muted-foreground mb-2 line-clamp-1">{item.title_en}</p>
               )}
-              
+
+              {/* الأسماء البديلة */}
+              {item.alternative_titles && item.alternative_titles.length > 0 && (
+                <div className="mb-2">
+                  <p className="text-xs text-muted-foreground">أسماء أخرى:</p>
+                  <p className="text-xs text-muted-foreground line-clamp-1">
+                    {item.alternative_titles.slice(0, 2).join(', ')}
+                    {item.alternative_titles.length > 2 && '...'}
+                  </p>
+                </div>
+              )}
+
               <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
                 <span>{item.rating}/10 ⭐</span>
                 <span>{item.view_count} مشاهدة</span>
