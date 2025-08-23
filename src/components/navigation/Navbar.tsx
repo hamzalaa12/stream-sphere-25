@@ -199,6 +199,16 @@ export const Navbar = () => {
                 </Link>
               </Button>
 
+              {/* Admin Button */}
+              {isAdmin && (
+                <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
+                  <Link to="/admin">
+                    <Shield className="h-5 w-5 ml-1" />
+                    لوحة الإدارة
+                  </Link>
+                </Button>
+              )}
+
               {/* User Actions */}
               {user ? (
                 <div className="flex items-center space-x-2 space-x-reverse">
