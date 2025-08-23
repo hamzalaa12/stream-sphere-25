@@ -263,7 +263,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
 
         if (error) throw error;
         contentId = editingContent.id;
-        toast({ title: 'تم', description: 'تم تحديث المحتوى بنجاح' });
+        toast({ title: 'تم', description: '��م تحديث المحتوى بنجاح' });
       } else {
         const { data, error } = await supabase
           .from('content')
@@ -311,8 +311,9 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
   const handleEdit = (contentItem: Content) => {
     setEditingContent(contentItem);
     setFormData({
-      title: contentItem.title,
-      title_en: contentItem.title_en || '',
+      title: contentItem.title, // الاسم الإنجليزي
+      title_ar: contentItem.title_en || '', // الاسم العربي (كان محفوظ في title_en مؤقتاً)
+      alternative_titles: contentItem.alternative_titles?.join(', ') || '',
       content_type: contentItem.content_type,
       categories: contentItem.categories?.join(', ') || '',
       release_date: contentItem.release_date || '',
@@ -388,7 +389,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
       <Card>
         <CardContent className="p-8 text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">جا��ي تحميل المحتوى...</p>
+          <p className="text-muted-foreground">جاري تحميل المحتوى...</p>
         </CardContent>
       </Card>
     );
@@ -425,7 +426,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Film className="h-5 w-5 text-primary" />
-                  <h3 className="text-lg font-semibold">ا��بيانات الأساسية</h3>
+                  <h3 className="text-lg font-semibold">البيانات الأساسية</h3>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
