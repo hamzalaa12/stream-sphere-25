@@ -163,7 +163,8 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
   const resetForm = () => {
     setFormData({
       title: '',
-      title_en: '',
+      title_ar: '',
+      alternative_titles: '',
       content_type: 'movie',
       categories: '',
       release_date: '',
@@ -367,7 +368,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
       'thriller': 'إثارة',
       'horror': 'رعب',
       'sci-fi': 'خيال علمي',
-      'fantasy': 'فانتاز��ا',
+      'fantasy': 'فانتازيا',
       'documentary': 'وثائقي',
       'animation': 'رسوم متحركة'
     };
@@ -408,7 +409,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl">
-                {editingContent ? 'تعد��ل المحتوى' : 'إضافة محتوى جديد'}
+                {editingContent ? 'تعديل المحتوى' : 'إضافة محتوى جديد'}
               </DialogTitle>
             </DialogHeader>
             
