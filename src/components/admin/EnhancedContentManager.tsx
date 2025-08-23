@@ -444,6 +444,9 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                       onChange={(e) => setFormData({...formData, title: e.target.value})}
                       placeholder="Enter English title"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      هذا هو الاسم الأساسي للعمل ويجب أن يكون بالإنجليزية
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="title_ar">الاسم بالعربية</Label>
@@ -563,7 +566,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">الوصف أو القصة</Label>
+                  <Label htmlFor="description">الوصف أو ��لقصة</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
