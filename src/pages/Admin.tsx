@@ -195,6 +195,10 @@ export default function Admin() {
             <EnhancedContentManager onStatsUpdate={fetchStats} />
           </TabsContent>
 
+          <TabsContent value="episodes">
+            <EpisodeManager />
+          </TabsContent>
+
           <TabsContent value="users">
             <UserManager />
           </TabsContent>
