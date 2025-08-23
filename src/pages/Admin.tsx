@@ -115,7 +115,7 @@ export default function Admin() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">لوحة الإدارة</h1>
-            <p className="text-muted-foreground">إدارة ��لمحتوى والمستخدمين</p>
+            <p className="text-muted-foreground">إدارة المحتوى والمستخدمين</p>
           </div>
         </div>
 
@@ -176,6 +176,10 @@ export default function Admin() {
             <TabsTrigger value="content" className="gap-2">
               <Film className="h-4 w-4" />
               إدارة المحتوى
+            </TabsTrigger>
+            <TabsTrigger value="episodes" className="gap-2">
+              <Tv className="h-4 w-4" />
+              إدارة الحلقات
             </TabsTrigger>
             <TabsTrigger value="users" className="gap-2">
               <Users className="h-4 w-4" />
