@@ -11,6 +11,7 @@ import SearchPage from "./pages/SearchPage";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
+import CategoryPage from "./pages/CategoryPage";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/category/:category" element={<CategoryPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -94,9 +94,12 @@ export default function ContentDetail() {
         .from('content')
         .select('*')
         .eq('id', contentId)
-        .single();
+        .maybeSingle();
 
       if (contentError) throw contentError;
+      if (!contentData) {
+        throw new Error('Content not found');
+      }
 
       let seasonsData = null;
       let streamingLinksData = null;
@@ -530,16 +533,15 @@ export default function ContentDetail() {
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <Avatar>
-                          <AvatarImage src={review.profiles?.avatar_url} />
                           <AvatarFallback>
-                            {review.profiles?.full_name?.charAt(0) || 'م'}
+                            م
                           </AvatarFallback>
                         </Avatar>
                         
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             <span className="font-medium">
-                              {review.profiles?.full_name || 'مستخدم'}
+                              مستخدم
                             </span>
                             {review.rating && (
                               <div className="flex items-center gap-1">

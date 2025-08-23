@@ -31,31 +31,31 @@ export const Navbar = () => {
   };
 
   const movieItems = [
-    { title: 'أفلام أجنبية', href: '/movies/foreign', icon: Film },
-    { title: 'أفلام أنمي', href: '/movies/anime', icon: Play },
-    { title: 'أفلام آسيوية', href: '/movies/asian', icon: Film },
-    { title: 'أفلام نتفلكس', href: '/movies/netflix', icon: Film },
-    { title: 'سلسلة أفلام', href: '/movies/series', icon: Film },
-    { title: 'الأعلى تقييماً', href: '/movies/top-rated', icon: Star },
+    { title: 'أفلام أجنبية', href: '/category/foreign?type=movie', icon: Film },
+    { title: 'أفلام أنمي', href: '/category/anime?type=movie', icon: Play },
+    { title: 'أفلام آسيوية', href: '/category/asian?type=movie', icon: Film },
+    { title: 'أفلام نتفلكس', href: '/category/foreign?type=movie&netflix=true', icon: Film },
+    { title: 'سلسلة أفلام', href: '/search?type=movie', icon: Film },
+    { title: 'الأعلى تقييماً', href: '/category/foreign?type=movie&top=true', icon: Star },
   ];
 
   const foreignSeriesItems = [
-    { title: 'قائمة المسلسلات', href: '/series/foreign', icon: Tv },
-    { title: 'مسلسلات نتفلكس', href: '/series/foreign/netflix', icon: Tv },
-    { title: 'الأعلى تقييماً', href: '/series/foreign/top-rated', icon: Star },
+    { title: 'قائمة المسلسلات', href: '/category/foreign?type=series', icon: Tv },
+    { title: 'مسلسلات نتفلكس', href: '/category/foreign?type=series&netflix=true', icon: Tv },
+    { title: 'الأعلى تقييماً', href: '/category/foreign?type=series&top=true', icon: Star },
   ];
 
   const asianSeriesItems = [
-    { title: 'قائمة المسلسلات', href: '/series/asian', icon: Tv },
-    { title: 'مسلسلات نتفلكس', href: '/series/asian/netflix', icon: Tv },
-    { title: 'الأعلى تقييماً', href: '/series/asian/top-rated', icon: Star },
+    { title: 'قائمة المسلسلات', href: '/category/asian?type=series', icon: Tv },
+    { title: 'مسلسلات نتفلكس', href: '/category/asian?type=series&netflix=true', icon: Tv },
+    { title: 'الأعلى تقييماً', href: '/category/asian?type=series&top=true', icon: Star },
   ];
 
   const animeItems = [
-    { title: 'أحدث الحلقات', href: '/anime/latest-episodes', icon: Play },
-    { title: 'قائمة الأنميات', href: '/anime/list', icon: Play },
-    { title: 'أنمي نتفلكس', href: '/anime/netflix', icon: Play },
-    { title: 'الأعلى تقييماً', href: '/anime/top-rated', icon: Star },
+    { title: 'أحدث الحلقات', href: '/search?type=anime', icon: Play },
+    { title: 'قائمة الأنميات', href: '/category/anime', icon: Play },
+    { title: 'أنمي نتفلكس', href: '/category/anime?netflix=true', icon: Play },
+    { title: 'الأعلى تقييماً', href: '/category/anime?top=true', icon: Star },
   ];
 
   return (
