@@ -195,7 +195,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
     if (!formData.title.trim()) {
       toast({
         title: 'خطأ',
-        description: 'عنوان العمل مطلوب',
+        description: 'اسم العمل بالإنجليزية مطلوب',
         variant: 'destructive'
       });
       return;
@@ -375,7 +375,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
 
   const getCategoryLabels = (categories: string[]) => {
     const categoryMap: Record<string, string> = {
-      'action': 'أ��شن',
+      'action': 'أكشن',
       'drama': 'دراما',
       'comedy': 'كوميديا',
       'romance': 'رومانسي',
