@@ -282,7 +282,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
         toast({ title: 'تم', description: 'تم إضافة المحتوى بنجاح' });
       }
 
-      // إذا كان م��لسل أو أنمي، إنشاء المواسم
+      // إذا كان مسلسل أو أنمي، إنشاء المواسم
       if ((formData.content_type === 'series' || formData.content_type === 'anime') && formData.season_count > 0 && !editingContent) {
         const seasons = Array.from({ length: formData.season_count }, (_, index) => ({
           content_id: contentId,
@@ -375,7 +375,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
 
   const getCategoryLabels = (categories: string[]) => {
     const categoryMap: Record<string, string> = {
-      'action': 'أكشن',
+      'action': 'أ��شن',
       'drama': 'دراما',
       'comedy': 'كوميديا',
       'romance': 'رومانسي',
@@ -395,7 +395,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
       <Card>
         <CardContent className="p-8 text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">ج��ري تحميل المحتوى...</p>
+          <p className="text-muted-foreground">جاري تحميل المحتوى...</p>
         </CardContent>
       </Card>
     );
@@ -432,7 +432,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Film className="h-5 w-5 text-primary" />
-                  <h3 className="text-lg font-semibold">��لبيانات الأساسية</h3>
+                  <h3 className="text-lg font-semibold">البيانات الأساسية</h3>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -749,8 +749,10 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
             
             <CardContent className="p-4">
               <h3 className="font-semibold mb-1 line-clamp-1">{item.title}</h3>
-              {item.title_en && (
-                <p className="text-sm text-muted-foreground mb-2 line-clamp-1">{item.title_en}</p>
+              {(item.title_ar || item.title_en) && (
+                <p className="text-sm text-muted-foreground mb-2 line-clamp-1">
+                  {item.title_ar || item.title_en}
+                </p>
               )}
 
               {/* الأسماء البديلة */}
