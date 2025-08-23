@@ -9,7 +9,7 @@ import ContentDetail from "./pages/ContentDetail";
 import WatchPage from "./pages/WatchPage";
 import SearchPage from "./pages/SearchPage";
 import Profile from "./pages/Profile";
-import Admin from "./pages/Admin";
+import EnhancedAdmin from "./pages/EnhancedAdmin";
 import Settings from "./pages/Settings";
 import CategoryPage from "./pages/CategoryPage";
 
