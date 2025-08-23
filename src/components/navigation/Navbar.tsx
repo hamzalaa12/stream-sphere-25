@@ -18,7 +18,8 @@ import {
   Search, 
   User, 
   LogOut,
-  Heart
+  Heart,
+  Settings
 } from 'lucide-react';
 
 export const Navbar = () => {
@@ -164,18 +165,29 @@ export const Navbar = () => {
             {/* Right Side Actions */}
             <div className="flex items-center space-x-4 space-x-reverse">
               {/* Search */}
-              <Button variant="ghost" size="sm">
-                <Search className="h-5 w-5" />
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/search">
+                  <Search className="h-5 w-5" />
+                </Link>
               </Button>
 
               {/* User Actions */}
               {user ? (
                 <div className="flex items-center space-x-2 space-x-reverse">
-                  <Button variant="ghost" size="sm">
-                    <Heart className="h-5 w-5" />
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/profile">
+                      <Heart className="h-5 w-5" />
+                    </Link>
                   </Button>
-                  <Button variant="ghost" size="sm">
-                    <User className="h-5 w-5" />
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/profile">
+                      <User className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/settings">
+                      <Settings className="h-5 w-5" />
+                    </Link>
                   </Button>
                   <Button variant="ghost" size="sm" onClick={handleSignOut}>
                     <LogOut className="h-5 w-5" />
