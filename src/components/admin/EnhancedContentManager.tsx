@@ -18,6 +18,7 @@ interface Content {
   id: string;
   title: string;
   title_en?: string;
+  alternative_titles?: string[];
   description?: string;
   poster_url?: string;
   backdrop_url?: string;
@@ -99,7 +100,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
 
       if (error) throw error;
       
-      // حساب عدد المواسم والحلقات للمسلسلات
+      // حساب عدد الم��اسم والحلقات للمسلسلات
       const contentWithStats = await Promise.all(
         (data || []).map(async (item) => {
           if (item.content_type === 'series' || item.content_type === 'anime') {
@@ -263,7 +264,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
 
         if (error) throw error;
         contentId = editingContent.id;
-        toast({ title: 'تم', description: '��م تحديث المحتوى بنجاح' });
+        toast({ title: 'تم', description: 'تم تحديث المحتوى بنجاح' });
       } else {
         const { data, error } = await supabase
           .from('content')
@@ -370,7 +371,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
   const getCategoryLabels = (categories: string[]) => {
     const categoryMap: Record<string, string> = {
       'action': 'أكشن',
-      'drama': 'دراما',
+      'drama': '��راما',
       'comedy': 'كوميديا',
       'romance': 'رومانسي',
       'thriller': 'إثارة',
@@ -627,7 +628,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ar">العربية</SelectItem>
+                        <SelectItem value="ar">العربي��</SelectItem>
                         <SelectItem value="en">الإنجليزية</SelectItem>
                         <SelectItem value="ko">الكورية</SelectItem>
                         <SelectItem value="ja">اليابانية</SelectItem>
