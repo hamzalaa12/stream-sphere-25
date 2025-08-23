@@ -28,7 +28,7 @@ const App = () => (
           <Route path="/watch/episode/:episodeId" element={<WatchPage type="episode" />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin" element={<EnhancedAdmin />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/category/:category" element={<CategoryPage />} />
           <Route path="*" element={<NotFound />} />
