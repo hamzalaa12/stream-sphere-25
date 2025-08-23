@@ -187,7 +187,7 @@ export default function Admin() {
           </TabsList>
 
           <TabsContent value="content">
-            <ContentManager onStatsUpdate={fetchStats} />
+            <EnhancedContentManager onStatsUpdate={fetchStats} />
           </TabsContent>
 
           <TabsContent value="users">
