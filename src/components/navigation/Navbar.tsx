@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,16 +10,18 @@ import {
 } from '@/components/ui/navigation-menu';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
-import { 
-  Film, 
-  Tv, 
-  Play, 
-  Star, 
-  Search, 
-  User, 
+import { supabase } from '@/integrations/supabase/client';
+import {
+  Film,
+  Tv,
+  Play,
+  Star,
+  Search,
+  User,
   LogOut,
   Heart,
-  Settings
+  Settings,
+  Shield
 } from 'lucide-react';
 
 export const Navbar = () => {
