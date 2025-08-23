@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Constants } from '@/integrations/supabase/types';
 
 interface Content {
   id: string;
@@ -141,16 +142,50 @@ export default function ContentManager({ onStatsUpdate }: ContentManagerProps) {
     }
 
     try {
-      const categories = formData.categories
+      // Normalize and validate categories against enum
+      const inputCategories = formData.categories
         .split(',')
-        .map(cat => cat.trim())
-        .filter(cat => cat.length > 0);
+        .map((cat) => cat.trim())
+        .filter((cat) => cat.length > 0);
+
+      const arabicToEnum: Record<string, string> = {
+        'أكشن': 'action',
+        'اكشن': 'action',
+        'دراما': 'drama',
+        'كوميديا': 'comedy',
+        'رومانسي': 'romance',
+        'رومانسية': 'romance',
+        'إثارة': 'thriller',
+        'اثارة': 'thriller',
+        'رعب': 'horror',
+        'خيال علمي': 'sci-fi',
+        'خيال-علمي': 'sci-fi',
+        'خيال': 'fantasy',
+        'فانتازيا': 'fantasy',
+        'وثائقي': 'documentary',
+        'رسوم متحركة': 'animation',
+        'انيميشن': 'animation',
+        'أنيميشن': 'animation',
+      };
+
+      const allowed = new Set<string>(Constants.public.Enums.content_category as readonly string[]);
+      const normalizedCategories = inputCategories.map((c) => arabicToEnum[c] || c.toLowerCase());
+      const invalidCategories = normalizedCategories.filter((c) => !allowed.has(c));
+
+      if (invalidCategories.length > 0) {
+        toast({
+          title: 'تصنيفات غير صالحة',
+          description: `هذه التصنيفات غير مدعومة: ${invalidCategories.join(', ')}. التصنيفات المسموحة: ${Array.from(allowed).join(', ')}`,
+          variant: 'destructive',
+        });
+        return;
+      }
 
       const contentData = {
         ...formData,
-        categories: categories as any,
+        categories: normalizedCategories as any,
         duration: formData.duration || null,
-        release_date: formData.release_date || null
+        release_date: formData.release_date || null,
       };
 
       if (editingContent) {
@@ -174,12 +209,14 @@ export default function ContentManager({ onStatsUpdate }: ContentManagerProps) {
       setIsAddDialogOpen(false);
       fetchContent();
       onStatsUpdate();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving content:', error);
+      const msg = error?.message || 'فشل في حفظ المحتوى';
+      const details = error?.details ? ` - ${error.details}` : '';
       toast({
         title: 'خطأ',
-        description: 'فشل في حفظ المحتوى',
-        variant: 'destructive'
+        description: `${msg}${details}`,
+        variant: 'destructive',
       });
     }
   };
