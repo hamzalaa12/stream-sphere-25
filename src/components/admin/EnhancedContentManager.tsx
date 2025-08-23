@@ -100,7 +100,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
 
       if (error) throw error;
       
-      // حساب عدد الم��اسم والحلقات للمسلسلات
+      // حساب عدد المواسم والحلقات للمسلسلات
       const contentWithStats = await Promise.all(
         (data || []).map(async (item) => {
           if (item.content_type === 'series' || item.content_type === 'anime') {
@@ -136,7 +136,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
       console.error('Error fetching content:', error);
       toast({
         title: 'خطأ',
-        description: 'فشل في تحميل المحتوى',
+        description: '��شل في تحميل المحتوى',
         variant: 'destructive'
       });
     } finally {
@@ -150,7 +150,10 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
     if (searchTerm) {
       filtered = filtered.filter(item =>
         item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.title_en && item.title_en.toLowerCase().includes(searchTerm.toLowerCase()))
+        (item.title_en && item.title_en.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (item.alternative_titles && item.alternative_titles.some(altTitle =>
+          altTitle.toLowerCase().includes(searchTerm.toLowerCase())
+        ))
       );
     }
 
@@ -371,7 +374,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
   const getCategoryLabels = (categories: string[]) => {
     const categoryMap: Record<string, string> = {
       'action': 'أكشن',
-      'drama': '��راما',
+      'drama': 'دراما',
       'comedy': 'كوميديا',
       'romance': 'رومانسي',
       'thriller': 'إثارة',
@@ -628,7 +631,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ar">العربي��</SelectItem>
+                        <SelectItem value="ar">العربية</SelectItem>
                         <SelectItem value="en">الإنجليزية</SelectItem>
                         <SelectItem value="ko">الكورية</SelectItem>
                         <SelectItem value="ja">اليابانية</SelectItem>
