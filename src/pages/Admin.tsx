@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import ContentManager from '@/components/admin/ContentManager';
+import EnhancedContentManager from '@/components/admin/EnhancedContentManager';
 import UserManager from '@/components/admin/UserManager';
 import StreamingLinksManager from '@/components/admin/StreamingLinksManager';
 
