@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, Play, Calendar, Clock, Link as LinkIcon, Download } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Play, Calendar, Clock, Link as LinkIcon, Download, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -651,7 +651,7 @@ export default function EpisodeManager() {
             <SelectItem value="all">جميع المواسم</SelectItem>
             {seasons.map((season) => (
               <SelectItem key={season.id} value={season.id}>
-                {season.content.title} - ��لموسم {season.season_number}
+                {season.content.title} - الموسم {season.season_number}
               </SelectItem>
             ))}
           </SelectContent>
