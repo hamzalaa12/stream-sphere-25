@@ -78,7 +78,7 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
       if (error) throw error;
       setAvailableServers(servers || []);
       
-      // تحديد السيرفر الأول كافتراضي
+      // تحديد السيرفر ��لأول كافتراضي
       if (servers && servers.length > 0) {
         setSelectedServers([servers[0].id]);
       }
@@ -264,7 +264,7 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
         
         toast({
           title: 'تم الإلغاء',
-          description: 'تم إلغ��ء عملية الرفع بنجاح'
+          description: 'تم إلغاء عملية الرفع بنجاح'
         });
       } catch (error) {
         toast({
@@ -484,7 +484,7 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
                       disabled={!isUploading}
                     >
                       {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-                      {isPaused ? 'استئناف' : 'إيقاف مؤقت'}
+                      {isPaused ? '��ستئناف' : 'إيقاف مؤقت'}
                     </Button>
                     <Button
                       variant="destructive"
@@ -499,7 +499,7 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>التقدم: {uploadedChunks} / {totalChunks} قط��ة</span>
+                    <span>التقدم: {uploadedChunks} / {totalChunks} قطعة</span>
                     <span>{Math.round(uploadProgress)}%</span>
                   </div>
                   <Progress value={uploadProgress} className="h-3" />
@@ -524,7 +524,49 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
             {uploadError && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{uploadError}</AlertDescription>
+                <AlertDescription>
+                  {uploadError}
+                  {uploadSession && (
+                    <div className="mt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          setUploadError(null);
+                          setIsUploading(true);
+                          try {
+                            const resumeFromChunk = await VideoUploadService.resumeUpload(uploadSession.id);
+                            await uploadFileInChunks(selectedFile!, uploadSession.id, resumeFromChunk);
+
+                            toast({
+                              title: 'نجح الرفع',
+                              description: 'تم استكمال رفع الفيديو بنجاح',
+                            });
+
+                            onUploadComplete?.({
+                              id: uploadSession.video_file_id,
+                              original_filename: selectedFile!.name,
+                              file_size_bytes: selectedFile!.size,
+                              mime_type: selectedFile!.type,
+                              upload_status: 'completed',
+                              processing_status: 'processing'
+                            } as VideoFile);
+
+                          } catch (retryError) {
+                            const retryUploadError = parseUploadError(retryError);
+                            const retryErrorMessage = getUploadErrorMessage(retryUploadError);
+                            setUploadError(retryErrorMessage.description);
+                          } finally {
+                            setIsUploading(false);
+                          }
+                        }}
+                        disabled={isUploading}
+                      >
+                        إعادة المحاولة
+                      </Button>
+                    </div>
+                  )}
+                </AlertDescription>
               </Alert>
             )}
 
