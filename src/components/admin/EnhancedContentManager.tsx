@@ -18,7 +18,7 @@ import { cleanupTestData, cleanupLowQualityContent } from '@/utils/cleanupTestDa
 
 interface Content {
   id: string;
-  title: string; // الاسم الإنجليزي الرئيسي
+  title: string; // الاسم الإنجليزي الرئي��ي
   title_ar?: string; // الاسم العربي
   title_en?: string; // للتوافق مع البيانات القديمة
   alternative_titles?: string[];
@@ -460,16 +460,18 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
   return (
     <div className="space-y-6">
       {/* Header and Actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold">إدارة المحتوى</h2>
-          <p className="text-muted-foreground">إضافة وتعديل الأفلام والمسلسلات والأنمي</p>
-        </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 className="text-2xl font-bold">إدارة المحتوى</h2>
+            <p className="text-muted-foreground">إضافة وتعديل الأفلام والمسلسلات والأنمي</p>
+          </div>
 
-        <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
-          setIsAddDialogOpen(open);
-          if (!open) resetForm();
-        }}>
+          <div className="flex gap-2">
+            <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
+              setIsAddDialogOpen(open);
+              if (!open) resetForm();
+            }}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
@@ -778,6 +780,28 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
             </div>
           </DialogContent>
         </Dialog>
+
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={handleCleanupTestData}
+          className="gap-2"
+        >
+          <Trash2 className="h-4 w-4" />
+          تنظيف البيانات التجريبية
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleCleanupLowQuality}
+          className="gap-2"
+        >
+          <Trash2 className="h-4 w-4" />
+          حذف المحتوى منخفض الجودة
+        </Button>
+          </div>
+        </div>
       </div>
 
       {/* Search and Filters */}
