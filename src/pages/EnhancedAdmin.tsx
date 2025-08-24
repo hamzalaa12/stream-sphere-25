@@ -14,6 +14,7 @@ import EnhancedContentManager from '@/components/admin/EnhancedContentManager';
 import EpisodeManager from '@/components/admin/EpisodeManager';
 import UserManager from '@/components/admin/UserManager';
 import EnhancedStreamingLinksManager from '@/components/admin/EnhancedStreamingLinksManager';
+import InternalServerManager from '@/components/admin/InternalServerManager';
 
 interface Stats {
   totalContent: number;
@@ -189,7 +190,7 @@ export default function EnhancedAdmin() {
     },
     {
       title: 'إضافة روابط',
-      description: 'إضافة روابط مشاهدة جديدة',
+      description: 'إضافة ر��ابط مشاهدة جديدة',
       icon: LinkIcon,
       action: () => {
         // التبديل إلى تبويب الروابط
