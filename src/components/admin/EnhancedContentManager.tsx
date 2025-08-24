@@ -259,7 +259,9 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
         language: formData.language,
         country: formData.country || null,
         age_rating: formData.age_rating || null,
-        is_netflix: formData.is_netflix
+        is_netflix: formData.is_netflix,
+        season_count: (formData.content_type === 'series' || formData.content_type === 'anime') ? formData.season_count : null,
+        total_episodes: (formData.content_type === 'series' || formData.content_type === 'anime') ? formData.total_episodes : null
       };
 
       let contentId: string;
@@ -676,7 +678,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                       id="country"
                       value={formData.country}
                       onChange={(e) => setFormData({...formData, country: e.target.value})}
-                      placeholder="الولايات ال��تحدة"
+                      placeholder="ا��ولايات ال��تحدة"
                     />
                   </div>
                 </div>
