@@ -190,7 +190,7 @@ export default function EnhancedAdmin() {
     },
     {
       title: 'إضافة روابط',
-      description: 'إضافة ر��ابط مشاهدة جديدة',
+      description: 'إضافة روابط مشاهدة جديدة',
       icon: LinkIcon,
       action: () => {
         // التبديل إلى تبويب الروابط
@@ -434,6 +434,10 @@ export default function EnhancedAdmin() {
               <TabsTrigger value="streaming" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <LinkIcon className="h-4 w-4" />
                 روابط المشاهدة
+              </TabsTrigger>
+              <TabsTrigger value="servers" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Settings className="h-4 w-4" />
+                إدارة السيرفرات
               </TabsTrigger>
               <TabsTrigger value="users" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Users className="h-4 w-4" />
