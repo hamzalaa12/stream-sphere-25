@@ -296,7 +296,7 @@ export default function EpisodeManager() {
     } catch (error: any) {
       console.error('Error saving episode:', error);
       toast({
-        title: '��طأ',
+        title: 'خطأ',
         description: `فشل في حفظ الحلقة: ${error?.message || ''}`,
         variant: 'destructive',
       });
@@ -403,6 +403,10 @@ export default function EpisodeManager() {
                   <Play className="h-4 w-4" />
                   البيانات الأساسية
                 </TabsTrigger>
+                <TabsTrigger value="upload" className="gap-2">
+                  <Upload className="h-4 w-4" />
+                  رفع الفيديو
+                </TabsTrigger>
                 <TabsTrigger value="streaming" className="gap-2">
                   <LinkIcon className="h-4 w-4" />
                   روابط المشاهدة
@@ -448,7 +452,7 @@ export default function EpisodeManager() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="title">اسم الحلقة (اختياري)</Label>
+                    <Label htmlFor="title">��سم الحلقة (اختياري)</Label>
                     <Input
                       id="title"
                       value={formData.title}
