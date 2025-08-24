@@ -14,6 +14,7 @@ import { VideoUploader } from '@/components/upload/VideoUploader';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Constants } from '@/integrations/supabase/types';
+import { cleanupTestData, cleanupLowQualityContent } from '@/utils/cleanupTestData';
 
 interface Content {
   id: string;
@@ -369,6 +370,56 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
     }
   };
 
+  const handleCleanupTestData = async () => {
+    if (!confirm('هل أنت متأكد من حذف جميع البيانات التجريبية؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
+
+    try {
+      const result = await cleanupTestData();
+      toast({
+        title: result.success ? 'تم' : 'خطأ',
+        description: result.message,
+        variant: result.success ? 'default' : 'destructive'
+      });
+
+      if (result.success) {
+        fetchContent();
+        onStatsUpdate();
+      }
+    } catch (error) {
+      console.error('Error during cleanup:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل في تنظيف البيانات',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleCleanupLowQuality = async () => {
+    if (!confirm('هل أنت متأكد من حذف المحتوى منخفض الجودة؟ سيتم حذف المحتوى بتقييم 0 أو مشاهدات أقل من 10.')) return;
+
+    try {
+      const result = await cleanupLowQualityContent();
+      toast({
+        title: result.success ? 'تم' : 'خطأ',
+        description: result.message,
+        variant: result.success ? 'default' : 'destructive'
+      });
+
+      if (result.success) {
+        fetchContent();
+        onStatsUpdate();
+      }
+    } catch (error) {
+      console.error('Error during low quality cleanup:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل في تنظيف المحتوى منخفض الجودة',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const getTypeLabel = (type: string) => {
     switch (type) {
       case 'movie': return 'فيلم';
@@ -678,7 +729,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                       id="country"
                       value={formData.country}
                       onChange={(e) => setFormData({...formData, country: e.target.value})}
-                      placeholder="ا��ولايات ال��تحدة"
+                      placeholder="الولايات ال��تحدة"
                     />
                   </div>
                 </div>
