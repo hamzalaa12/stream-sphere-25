@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit, Trash2, Users, BarChart3, Film, Tv, Zap, Link as LinkIcon, Settings, Shield, Calendar, TrendingUp } from 'lucide-react';
+import { 
+  Plus, Edit, Trash2, Users, BarChart3, Film, Tv, Zap, Link as LinkIcon, 
+  Settings, Shield, Calendar, TrendingUp, Bell, Monitor, Activity, 
+  PieChart, LineChart, AlertTriangle, Cpu, HardDrive, Wifi, Database
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,6 +19,9 @@ import EpisodeManager from '@/components/admin/EpisodeManager';
 import UserManager from '@/components/admin/UserManager';
 import EnhancedStreamingLinksManager from '@/components/admin/EnhancedStreamingLinksManager';
 import InternalServerManager from '@/components/admin/InternalServerManager';
+import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
+import NotificationCenter from '@/components/admin/NotificationCenter';
+import SystemMonitor from '@/components/admin/SystemMonitor';
 
 interface Stats {
   totalContent: number;
@@ -420,31 +427,189 @@ export default function EnhancedAdmin() {
         </Card>
 
         {/* تبويبات الإدارة */}
-        <Tabs defaultValue="content" className="space-y-6">
-          <div className="bg-card rounded-lg border">
-            <TabsList className="w-full justify-start bg-transparent p-2">
-              <TabsTrigger value="content" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <div className="bg-card rounded-lg border overflow-x-auto">
+            <TabsList className="w-full justify-start bg-transparent p-2 min-w-fit">
+              <TabsTrigger value="dashboard" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground whitespace-nowrap">
+                <BarChart3 className="h-4 w-4" />
+                لوحة التحكم
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground whitespace-nowrap">
+                <PieChart className="h-4 w-4" />
+                التحليلات المتقدمة
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground whitespace-nowrap">
+                <Bell className="h-4 w-4" />
+                مركز التنبيهات
+              </TabsTrigger>
+              <TabsTrigger value="monitor" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground whitespace-nowrap">
+                <Monitor className="h-4 w-4" />
+                مراقب النظام
+              </TabsTrigger>
+              <TabsTrigger value="content" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground whitespace-nowrap">
                 <Film className="h-4 w-4" />
                 إدارة المحتوى
               </TabsTrigger>
-              <TabsTrigger value="episodes" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="episodes" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground whitespace-nowrap">
                 <Tv className="h-4 w-4" />
                 إدارة الحلقات
               </TabsTrigger>
-              <TabsTrigger value="streaming" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="streaming" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground whitespace-nowrap">
                 <LinkIcon className="h-4 w-4" />
                 روابط المشاهدة
               </TabsTrigger>
-              <TabsTrigger value="servers" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="servers" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground whitespace-nowrap">
                 <Settings className="h-4 w-4" />
                 إدارة السيرفرات
               </TabsTrigger>
-              <TabsTrigger value="users" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger value="users" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground whitespace-nowrap">
                 <Users className="h-4 w-4" />
                 إدارة المستخدمين
               </TabsTrigger>
             </TabsList>
           </div>
+
+          <TabsContent value="dashboard" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              {/* نظرة عامة سريعة */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* رسم بياني للمشاهدات */}
+                <Card className="bg-gradient-card border-0 shadow-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <LineChart className="h-5 w-5" />
+                      نمو المشاهدات (آخر 7 أيام)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg flex items-center justify-center">
+                      <div className="text-center">
+                        <Activity className="h-12 w-12 text-primary mx-auto mb-4" />
+                        <p className="text-muted-foreground">رسم بياني تفاعلي للمشاهدات</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* أحدث النشاطات */}
+                <Card className="bg-gradient-card border-0 shadow-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity className="h-5 w-5" />
+                      آخر النشاطات
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">تم إضافة فيلم جديد: "الرحلة الأخيرة"</p>
+                          <p className="text-xs text-muted-foreground">منذ 5 دقائق</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">مستخدم جديد انضم للمنصة</p>
+                          <p className="text-xs text-muted-foreground">منذ 12 دقيقة</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">تحديث خادم المشاهدة #3</p>
+                          <p className="text-xs text-muted-foreground">منذ 23 دقيقة</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* معلومات النظام */}
+              <div className="space-y-6">
+                <Card className="bg-gradient-card border-0 shadow-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Cpu className="h-5 w-5" />
+                      حالة النظام
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">المعالج</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 h-2 bg-secondary rounded-full">
+                            <div className="w-8 h-2 bg-green-500 rounded-full"></div>
+                          </div>
+                          <span className="text-sm font-medium">52%</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">الذاكرة</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 h-2 bg-secondary rounded-full">
+                            <div className="w-11 h-2 bg-blue-500 rounded-full"></div>
+                          </div>
+                          <span className="text-sm font-medium">68%</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">التخزين</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 h-2 bg-secondary rounded-full">
+                            <div className="w-12 h-2 bg-yellow-500 rounded-full"></div>
+                          </div>
+                          <span className="text-sm font-medium">75%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-card border-0 shadow-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5" />
+                      تنبيهات مهمة
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-2 p-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+                        <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-red-500">تحديث أمني مطلوب</p>
+                          <p className="text-xs text-muted-foreground">خادم قاعدة البيانات</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                        <AlertTriangle className="h-4 w-4 text-yellow-500 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-yellow-500">مساحة منخفضة</p>
+                          <p className="text-xs text-muted-foreground">خادم التخزين #2</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="mt-6">
+            <AnalyticsDashboard />
+          </TabsContent>
+
+          <TabsContent value="notifications" className="mt-6">
+            <NotificationCenter />
+          </TabsContent>
+
+          <TabsContent value="monitor" className="mt-6">
+            <SystemMonitor />
+          </TabsContent>
 
           <TabsContent value="content" className="mt-6">
             <EnhancedContentManager onStatsUpdate={fetchStats} />
