@@ -104,30 +104,45 @@ export class VideoUploadService {
       return { session, videoFile };
     } catch (error) {
       console.error('Error creating upload session:', error);
-      throw new Error('فشل في إنشاء جلسة الرفع');
+      throw new Error('فش�� في إنشاء جلسة الرفع');
     }
   }
 
-  // رفع قطعة من الملف
+  // رفع قطعة من الملف مع آلية إعادة المحاولة
   static async uploadChunk(
     sessionId: string,
     chunkNumber: number,
     chunkData: ArrayBuffer,
-    onProgress?: (progress: number) => void
+    onProgress?: (progress: number) => void,
+    retryCount = 0
   ): Promise<boolean> {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 1000; // 1 second
+
     try {
       // حساب checksum للقطعة
       const checksum = await this.calculateChecksum(chunkData);
 
-      // التحقق من الجلسة
-      const { data: session } = await supabase
-        .from('upload_sessions')
+      // التحقق من الجلسة وتجديدها إذا لزم الأمر
+      const session = await this.validateAndRefreshSession(sessionId);
+
+      // التحقق من وجود القطعة مسبقاً
+      const { data: existingChunk } = await supabase
+        .from('upload_chunks')
         .select('*')
-        .eq('id', sessionId)
+        .eq('session_id', sessionId)
+        .eq('chunk_number', chunkNumber)
+        .eq('is_uploaded', true)
         .single();
 
-      if (!session || new Date(session.expires_at) < new Date()) {
-        throw new Error('انتهت صلاحية جلسة الرفع');
+      if (existingChunk) {
+        // القطعة موجودة مسبقاً، لا حاجة لرفعها مرة أخرى
+        console.log(`Chunk ${chunkNumber} already uploaded, skipping...`);
+        if (onProgress) {
+          const newProgress = ((session.uploaded_chunks + 1) / session.total_chunks) * 100;
+          onProgress(newProgress);
+        }
+        return true;
       }
 
       // رفع القطعة إلى التخزين (في التطبيق الحقيقي، هذا سيكون إلى S3 أو سيرفر ملفات)
@@ -174,8 +189,90 @@ export class VideoUploadService {
 
       return true;
     } catch (error) {
-      console.error('Error uploading chunk:', error);
-      throw new Error('فشل في رفع القطعة');
+      console.error(`Error uploading chunk ${chunkNumber} (attempt ${retryCount + 1}):`, error);
+
+      // إعادة المحاولة في حالة الفشل
+      if (retryCount < MAX_RETRIES) {
+        console.log(`Retrying chunk ${chunkNumber} in ${RETRY_DELAY}ms...`);
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (retryCount + 1)));
+        return this.uploadChunk(sessionId, chunkNumber, chunkData, onProgress, retryCount + 1);
+      }
+
+      // فشل نهائياً بعد المحاولات
+      const errorMessage = error instanceof Error ? error.message : 'فشل غير معروف';
+      throw new Error(`فشل نهائي في رفع القطعة ${chunkNumber}: ${errorMessage}`);
+    }
+  }
+
+  // التحقق من صحة الجلسة وتجديدها إذا لزم الأمر
+  static async validateAndRefreshSession(sessionId: string): Promise<any> {
+    const { data: session } = await supabase
+      .from('upload_sessions')
+      .select('*')
+      .eq('id', sessionId)
+      .single();
+
+    if (!session) {
+      throw new Error('جلسة الرفع غير موجودة');
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(session.expires_at);
+    const timeUntilExpiry = expiresAt.getTime() - now.getTime();
+    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+
+    // إذا كانت الجلسة ستنتهي ��لال ساعة واحدة، قم بتجديدها
+    if (timeUntilExpiry < oneHour) {
+      const newExpiresAt = new Date();
+      newExpiresAt.setHours(newExpiresAt.getHours() + 24); // تمديد لـ 24 ساعة إضافية
+
+      const { error } = await supabase
+        .from('upload_sessions')
+        .update({ expires_at: newExpiresAt.toISOString() })
+        .eq('id', sessionId);
+
+      if (error) {
+        console.error('Error refreshing session:', error);
+        // لا نرمي خطأ هنا، نتابع بالجلسة الحالية
+      } else {
+        console.log(`Session ${sessionId} refreshed until ${newExpiresAt.toISOString()}`);
+      }
+    }
+
+    return session;
+  }
+
+  // استئناف الرفع من النقطة التي توقف عندها
+  static async resumeUpload(sessionId: string): Promise<number> {
+    try {
+      const { data: uploadedChunks } = await supabase
+        .from('upload_chunks')
+        .select('chunk_number')
+        .eq('session_id', sessionId)
+        .eq('is_uploaded', true)
+        .order('chunk_number');
+
+      const uploadedChunkNumbers = new Set(uploadedChunks?.map(c => c.chunk_number) || []);
+
+      // العثور على أول قطعة مفقودة
+      const { data: session } = await supabase
+        .from('upload_sessions')
+        .select('total_chunks')
+        .eq('id', sessionId)
+        .single();
+
+      if (!session) throw new Error('جلسة الرفع غير موجودة');
+
+      for (let i = 0; i < session.total_chunks; i++) {
+        if (!uploadedChunkNumbers.has(i)) {
+          return i; // أول قطعة مفقودة
+        }
+      }
+
+      return session.total_chunks; // كل القطع تم رفعها
+    } catch (error) {
+      console.error('Error resuming upload:', error);
+      return 0; // ابدأ من البداية في حالة الخطأ
     }
   }
 
@@ -401,7 +498,7 @@ export class VideoUploadService {
     quality: string,
     outputDir: string
   ): Promise<string> {
-    // في التطبيق الحقيقي، هذا سيستخدم FFmpeg
+    // في التطبيق الحقيقي، هذ�� سيستخدم FFmpeg
     const outputPath = `${outputDir}/video_${quality}.mp4`;
     
     // محاكاة التحويل
