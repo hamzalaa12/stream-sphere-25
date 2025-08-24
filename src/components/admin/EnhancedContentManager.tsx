@@ -54,6 +54,8 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
   const [filterType, setFilterType] = useState<string>('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingContent, setEditingContent] = useState<Content | null>(null);
+  const [uploadedVideoFile, setUploadedVideoFile] = useState<any>(null);
+  const [isVideoUploading, setIsVideoUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     // البيانات الأساسية
@@ -588,7 +590,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="backdrop_url">صورة خلفية (ا��تياري)</Label>
+                    <Label htmlFor="backdrop_url">صورة خلفية (اختياري)</Label>
                     <Input
                       id="backdrop_url"
                       value={formData.backdrop_url}
