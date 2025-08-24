@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { VideoUploader } from '@/components/upload/VideoUploader';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -295,7 +296,7 @@ export default function EpisodeManager() {
     } catch (error: any) {
       console.error('Error saving episode:', error);
       toast({
-        title: 'خطأ',
+        title: '��طأ',
         description: `فشل في حفظ الحلقة: ${error?.message || ''}`,
         variant: 'destructive',
       });
