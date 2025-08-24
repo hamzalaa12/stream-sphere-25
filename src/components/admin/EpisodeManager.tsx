@@ -506,6 +506,21 @@ export default function EpisodeManager() {
                 </div>
               </TabsContent>
 
+              <TabsContent value="upload" className="space-y-4">
+                <VideoUploader
+                  episodeId={editingEpisode?.id}
+                  onUploadStart={() => {
+                    // يمكن إضافة منطق إضافي هنا
+                  }}
+                  onUploadComplete={(videoFile) => {
+                    toast({
+                      title: 'نجح الرفع',
+                      description: 'تم رفع فيديو الحلقة بنجاح وبدء المعالجة'
+                    });
+                  }}
+                />
+              </TabsContent>
+
               <TabsContent value="streaming" className="space-y-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -636,7 +651,7 @@ export default function EpisodeManager() {
             <SelectItem value="all">جميع المواسم</SelectItem>
             {seasons.map((season) => (
               <SelectItem key={season.id} value={season.id}>
-                {season.content.title} - الموسم {season.season_number}
+                {season.content.title} - ��لموسم {season.season_number}
               </SelectItem>
             ))}
           </SelectContent>
