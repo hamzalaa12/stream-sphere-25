@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { VideoUploader } from '@/components/upload/VideoUploader';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Constants } from '@/integrations/supabase/types';
@@ -195,7 +196,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
     if (!formData.title.trim()) {
       toast({
         title: 'خطأ',
-        description: 'اسم العمل بالإنجليزية مطلوب',
+        description: 'اسم العمل بالإنجليزية مط��وب',
         variant: 'destructive'
       });
       return;
@@ -417,7 +418,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
-              إضافة محتوى جديد
+              إضافة محتوى ��ديد
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -566,7 +567,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">الوصف أو ��لقصة</Label>
+                  <Label htmlFor="description">الوصف أو القصة</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
