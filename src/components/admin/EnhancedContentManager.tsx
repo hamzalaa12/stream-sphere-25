@@ -119,7 +119,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
             const { data: episodes } = await supabase
               .from('episodes')
               .select('id')
-              .in('season_id', 
+              .in('season_id',
                 (await supabase
                   .from('seasons')
                   .select('id')
@@ -132,7 +132,11 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
               total_episodes: episodes?.length || 0
             };
           }
-          return item;
+          return {
+            ...item,
+            season_count: 0,
+            total_episodes: 0
+          };
         })
       );
 
@@ -155,11 +159,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
     if (searchTerm) {
       filtered = filtered.filter(item =>
         item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.title_ar && item.title_ar.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (item.title_en && item.title_en.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (item.alternative_titles && item.alternative_titles.some(altTitle =>
-          altTitle.toLowerCase().includes(searchTerm.toLowerCase())
-        ))
+        (item.title_en && item.title_en.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -244,10 +244,10 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
         .map(title => title.trim())
         .filter(title => title.length > 0);
 
+      // Map form data to database schema fields
       const contentData = {
-        title: formData.title, // الاسم الإنجليزي كاسم رئيسي
-        title_ar: formData.title_ar || null, // الاسم العربي
-        alternative_titles: alternativeTitlesArray.length > 0 ? alternativeTitlesArray : null,
+        title: formData.title_ar || formData.title, // Use Arabic title as main title if available
+        title_en: formData.title, // Store English title in title_en field
         description: formData.description || null,
         poster_url: formData.poster_url || null,
         backdrop_url: formData.backdrop_url || null,
@@ -256,13 +256,10 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
         release_date: formData.release_date || null,
         duration: formData.duration || null,
         content_type: formData.content_type,
-        categories: normalizedCategories as any,
+        categories: normalizedCategories.length > 0 ? normalizedCategories as any : null,
         language: formData.language,
         country: formData.country || null,
-        age_rating: formData.age_rating || null,
-        is_netflix: formData.is_netflix,
-        season_count: (formData.content_type === 'series' || formData.content_type === 'anime') ? formData.season_count : null,
-        total_episodes: (formData.content_type === 'series' || formData.content_type === 'anime') ? formData.total_episodes : null
+        is_netflix: formData.is_netflix
       };
 
       let contentId: string;
@@ -348,25 +345,25 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
   const handleEdit = (contentItem: Content) => {
     setEditingContent(contentItem);
     setFormData({
-      title: contentItem.title, // الاسم الإنجليزي
-      title_ar: contentItem.title_ar || contentItem.title_en || '', // الاسم العربي
-      alternative_titles: contentItem.alternative_titles?.join(', ') || '',
+      title: contentItem.title_en || '', // English title
+      title_ar: contentItem.title || '', // Arabic title (stored in main title field)
+      alternative_titles: '', // Not supported in current schema
       content_type: contentItem.content_type,
       categories: contentItem.categories?.join(', ') || '',
       release_date: contentItem.release_date || '',
-      season_count: contentItem.season_count || 0,
-      total_episodes: contentItem.total_episodes || 0,
-      rating: contentItem.rating,
+      season_count: 0, // Will be calculated from seasons table
+      total_episodes: 0, // Will be calculated from episodes table
+      rating: contentItem.rating || 0,
       description: contentItem.description || '',
       poster_url: contentItem.poster_url || '',
       backdrop_url: contentItem.backdrop_url || '',
-      age_rating: contentItem.age_rating || '',
-      language: contentItem.language,
+      age_rating: '', // Not in current schema
+      language: contentItem.language || 'ar',
       duration: contentItem.duration || 0,
       tags: '',
       country: contentItem.country || '',
       trailer_url: contentItem.trailer_url || '',
-      is_netflix: contentItem.is_netflix
+      is_netflix: contentItem.is_netflix || false
     });
     setIsAddDialogOpen(true);
   };
@@ -580,7 +577,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                       id="categories"
                       value={formData.categories}
                       onChange={(e) => setFormData({...formData, categories: e.target.value})}
-                      placeholder="أجن��ي، آسيوي، أنمي، نتفلكس"
+                      placeholder="أجنبي، آسيوي، أنمي، نتفلكس"
                     />
                   </div>
                   <div className="space-y-2">
