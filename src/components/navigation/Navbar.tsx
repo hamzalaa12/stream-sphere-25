@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,21 +10,49 @@ import {
 } from '@/components/ui/navigation-menu';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
-import { 
-  Film, 
-  Tv, 
-  Play, 
-  Star, 
-  Search, 
-  User, 
+import { supabase } from '@/integrations/supabase/client';
+import {
+  Film,
+  Tv,
+  Play,
+  Star,
+  Search,
+  User,
   LogOut,
   Heart,
-  Settings
+  Settings,
+  Shield
 } from 'lucide-react';
 
 export const Navbar = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { user, signOut } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      checkAdminStatus();
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
+
+  const checkAdminStatus = async () => {
+    if (!user) return;
+
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+      setIsAdmin(profile?.role === 'admin');
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      setIsAdmin(false);
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -170,6 +198,16 @@ export const Navbar = () => {
                   <Search className="h-5 w-5" />
                 </Link>
               </Button>
+
+              {/* Admin Button */}
+              {isAdmin && (
+                <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
+                  <Link to="/admin">
+                    <Shield className="h-5 w-5 ml-1" />
+                    لوحة الإدارة
+                  </Link>
+                </Button>
+              )}
 
               {/* User Actions */}
               {user ? (

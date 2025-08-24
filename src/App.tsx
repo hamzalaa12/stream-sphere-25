@@ -9,7 +9,7 @@ import ContentDetail from "./pages/ContentDetail";
 import WatchPage from "./pages/WatchPage";
 import SearchPage from "./pages/SearchPage";
 import Profile from "./pages/Profile";
-import Admin from "./pages/Admin";
+import EnhancedAdmin from "./pages/EnhancedAdmin";
 import Settings from "./pages/Settings";
 import CategoryPage from "./pages/CategoryPage";
 
@@ -28,7 +28,7 @@ const App = () => (
           <Route path="/watch/episode/:episodeId" element={<WatchPage type="episode" />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin" element={<EnhancedAdmin />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/category/:category" element={<CategoryPage />} />
           <Route path="*" element={<NotFound />} />

@@ -8,9 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import ContentManager from '@/components/admin/ContentManager';
+import EnhancedContentManager from '@/components/admin/EnhancedContentManager';
+import EpisodeManager from '@/components/admin/EpisodeManager';
 import UserManager from '@/components/admin/UserManager';
-import StreamingLinksManager from '@/components/admin/StreamingLinksManager';
+import EnhancedStreamingLinksManager from '@/components/admin/EnhancedStreamingLinksManager';
 
 interface Stats {
   totalContent: number;
@@ -176,6 +177,10 @@ export default function Admin() {
               <Film className="h-4 w-4" />
               إدارة المحتوى
             </TabsTrigger>
+            <TabsTrigger value="episodes" className="gap-2">
+              <Tv className="h-4 w-4" />
+              إدارة الحلقات
+            </TabsTrigger>
             <TabsTrigger value="users" className="gap-2">
               <Users className="h-4 w-4" />
               إدارة المستخدمين
@@ -187,7 +192,11 @@ export default function Admin() {
           </TabsList>
 
           <TabsContent value="content">
-            <ContentManager onStatsUpdate={fetchStats} />
+            <EnhancedContentManager onStatsUpdate={fetchStats} />
+          </TabsContent>
+
+          <TabsContent value="episodes">
+            <EpisodeManager />
           </TabsContent>
 
           <TabsContent value="users">
@@ -195,7 +204,7 @@ export default function Admin() {
           </TabsContent>
 
           <TabsContent value="streaming">
-            <StreamingLinksManager />
+            <EnhancedStreamingLinksManager />
           </TabsContent>
         </Tabs>
       </div>
