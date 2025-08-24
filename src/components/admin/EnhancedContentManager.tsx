@@ -603,6 +603,27 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
 
               <Separator />
 
+              {/* رفع الفيديو */}
+              {formData.content_type === 'movie' && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Upload className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-semibold">رفع ملف الفيديو</h3>
+                  </div>
+
+                  <VideoUploader
+                    contentId={editingContent?.id}
+                    onUploadStart={() => setIsVideoUploading(true)}
+                    onUploadComplete={(videoFile) => {
+                      setUploadedVideoFile(videoFile);
+                      setIsVideoUploading(false);
+                    }}
+                  />
+                </div>
+              )}
+
+              {formData.content_type === 'movie' && <Separator />}
+
               {/* البيانات الإضافية */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
@@ -655,7 +676,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                       id="country"
                       value={formData.country}
                       onChange={(e) => setFormData({...formData, country: e.target.value})}
-                      placeholder="الولايات المتحدة"
+                      placeholder="الولايات ال��تحدة"
                     />
                   </div>
                 </div>
@@ -725,7 +746,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
             <SelectItem value="all">جميع الأنواع</SelectItem>
             <SelectItem value="movie">الأفلام</SelectItem>
             <SelectItem value="series">المسلسلات</SelectItem>
-            <SelectItem value="anime">الأنمي</SelectItem>
+            <SelectItem value="anime">ال��نمي</SelectItem>
           </SelectContent>
         </Select>
       </div>
