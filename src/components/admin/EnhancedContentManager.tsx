@@ -312,9 +312,34 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
       onStatsUpdate();
     } catch (error: any) {
       console.error('Error saving content:', error);
+
+      // Extract meaningful error message from Supabase error
+      let errorMessage = 'حدث خطأ غير معروف';
+
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.details) {
+        errorMessage = error.details;
+      } else if (error?.hint) {
+        errorMessage = error.hint;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error?.error?.message) {
+        errorMessage = error.error.message;
+      }
+
+      // Handle specific database constraint errors
+      if (errorMessage.includes('duplicate key') || errorMessage.includes('already exists')) {
+        errorMessage = 'يوجد محتوى بنفس الاسم مسبقاً';
+      } else if (errorMessage.includes('foreign key') || errorMessage.includes('violates')) {
+        errorMessage = 'خطأ في البيانات المدخلة - يرجى التحقق من صحة المعلومات';
+      } else if (errorMessage.includes('check constraint') || errorMessage.includes('invalid')) {
+        errorMessage = 'قيم غير صالحة في البيانات المدخلة';
+      }
+
       toast({
-        title: 'خطأ',
-        description: `فشل في حفظ المحتوى: ${error?.message || ''}`,
+        title: 'خطأ في حفظ المحتوى',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -555,7 +580,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                       id="categories"
                       value={formData.categories}
                       onChange={(e) => setFormData({...formData, categories: e.target.value})}
-                      placeholder="أجنبي، آسيوي، أنمي، نتفلكس"
+                      placeholder="أجن��ي، آسيوي، أنمي، نتفلكس"
                     />
                   </div>
                   <div className="space-y-2">
