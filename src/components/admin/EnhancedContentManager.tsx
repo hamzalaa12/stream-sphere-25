@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, Filter, Film, Tv, Calendar } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Filter, Film, Tv, Calendar, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -588,7 +588,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="backdrop_url">صورة خلفية (اختياري)</Label>
+                    <Label htmlFor="backdrop_url">صورة خلفية (ا��تياري)</Label>
                     <Input
                       id="backdrop_url"
                       value={formData.backdrop_url}
