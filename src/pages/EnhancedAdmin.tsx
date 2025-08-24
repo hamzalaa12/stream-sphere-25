@@ -458,6 +458,10 @@ export default function EnhancedAdmin() {
             <EnhancedStreamingLinksManager />
           </TabsContent>
 
+          <TabsContent value="servers" className="mt-6">
+            <InternalServerManager />
+          </TabsContent>
+
           <TabsContent value="users" className="mt-6">
             <UserManager />
           </TabsContent>
