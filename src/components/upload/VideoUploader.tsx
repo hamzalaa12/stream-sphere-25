@@ -241,7 +241,21 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
           }
         );
       } catch (error) {
-        throw new Error(`فشل في رفع القط��ة ${chunkNumber + 1}: ${error}`);
+        console.error(`Chunk ${chunkNumber + 1} upload failed:`, error);
+
+        const uploadError = parseUploadError(error, {
+          chunkNumber,
+          sessionId
+        });
+
+        logUploadError(uploadError, sessionId, {
+          fileName: file.name,
+          fileSize: file.size,
+          chunkSize: chunkData.byteLength,
+          totalChunks
+        });
+
+        throw new Error(`فشل في رفع القطعة ${chunkNumber + 1}: ${uploadError.message}`);
       }
     }
   };
