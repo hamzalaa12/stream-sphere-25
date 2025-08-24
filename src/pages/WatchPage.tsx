@@ -1,13 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Download, Settings, SkipBack, SkipForward, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowLeft, Clock, Star, Users, Calendar, Film, Play, SkipBack, SkipForward, Heart, Bookmark, Share2, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { AdvancedVideoPlayer } from '@/components/player/AdvancedVideoPlayer';
 
 interface StreamingLink {
   id: string;
@@ -23,6 +26,11 @@ interface ContentData {
   title: string;
   content_type: 'movie' | 'series' | 'anime';
   poster_url?: string;
+  description?: string;
+  release_date?: string;
+  rating?: number;
+  duration?: number;
+  genres?: string[];
 }
 
 interface EpisodeData {
@@ -30,6 +38,8 @@ interface EpisodeData {
   title?: string;
   episode_number: number;
   duration?: number;
+  description?: string;
+  air_date?: string;
   season_id: string;
   season?: {
     season_number: number;
@@ -47,16 +57,16 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   const [streamingLinks, setStreamingLinks] = useState<StreamingLink[]>([]);
-  const [selectedServer, setSelectedServer] = useState<string>('');
   const [content, setContent] = useState<ContentData | null>(null);
   const [episode, setEpisode] = useState<EpisodeData | null>(null);
   const [allEpisodes, setAllEpisodes] = useState<EpisodeData[]>([]);
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [watchTime, setWatchTime] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -65,14 +75,9 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
       } else {
         fetchMovieData(id);
       }
+      checkUserInteractions();
     }
-  }, [id, type]);
-
-  useEffect(() => {
-    if (selectedServer) {
-      saveWatchHistory();
-    }
-  }, [selectedServer, watchTime]);
+  }, [id, type, user]);
 
   const fetchMovieData = async (movieId: string) => {
     try {
@@ -94,10 +99,6 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
 
       if (linksError) throw linksError;
       setStreamingLinks(linksData || []);
-      
-      if (linksData && linksData.length > 0) {
-        setSelectedServer(linksData[0].id);
-      }
     } catch (error) {
       console.error('Error fetching movie data:', error);
       toast({
@@ -150,10 +151,6 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
 
       if (linksError) throw linksError;
       setStreamingLinks(linksData || []);
-      
-      if (linksData && linksData.length > 0) {
-        setSelectedServer(linksData[0].id);
-      }
     } catch (error) {
       console.error('Error fetching episode data:', error);
       toast({
@@ -166,15 +163,44 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
     }
   };
 
-  const saveWatchHistory = async () => {
+  const checkUserInteractions = async () => {
+    if (!user || !id) return;
+
+    try {
+      // Check if user liked this content
+      const { data: likeData } = await supabase
+        .from('user_favorites')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq(type === 'episode' ? 'episode_id' : 'content_id', id)
+        .single();
+
+      setIsLiked(!!likeData);
+
+      // Check if user bookmarked this content
+      const { data: bookmarkData } = await supabase
+        .from('user_watchlist')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq(type === 'episode' ? 'episode_id' : 'content_id', id)
+        .single();
+
+      setIsBookmarked(!!bookmarkData);
+    } catch (error) {
+      // Ignore errors for user interactions
+    }
+  };
+
+  const saveWatchHistory = async (currentTime: number, duration: number) => {
     if (!user || !id) return;
 
     try {
       const watchData = {
         user_id: user.id,
-        watch_time: Math.floor(watchTime),
+        watch_time: Math.floor(currentTime),
+        total_duration: Math.floor(duration),
         last_watched: new Date().toISOString(),
-        completed: false,
+        completed: currentTime / duration > 0.9,
         ...(type === 'episode' ? { episode_id: id } : { content_id: id })
       };
 
@@ -186,9 +212,22 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
     }
   };
 
-  const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      setWatchTime(videoRef.current.currentTime);
+  const handleProgress = (currentTime: number, duration: number) => {
+    setWatchTime(currentTime);
+    saveWatchHistory(currentTime, duration);
+  };
+
+  const handleComplete = () => {
+    toast({
+      title: 'تمت المشاهدة',
+      description: 'تم إنهاء مشاهدة المحتوى ��نجاح',
+    });
+
+    // Auto-navigate to next episode if available
+    if (type === 'episode' && currentEpisodeIndex < allEpisodes.length - 1) {
+      setTimeout(() => {
+        navigateEpisode('next');
+      }, 3000);
     }
   };
 
@@ -202,8 +241,113 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
     }
   };
 
-  const getCurrentStreamingLink = () => {
-    return streamingLinks.find(link => link.id === selectedServer);
+  const toggleLike = async () => {
+    if (!user) {
+      toast({
+        title: 'تسجيل الدخول مطلوب',
+        description: 'يجب تسجيل الدخول لإضافة المحتوى للمفضلة',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      if (isLiked) {
+        await supabase
+          .from('user_favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq(type === 'episode' ? 'episode_id' : 'content_id', id);
+        setIsLiked(false);
+        toast({ title: 'تم إزالة من المفضلة' });
+      } else {
+        await supabase
+          .from('user_favorites')
+          .insert({
+            user_id: user.id,
+            ...(type === 'episode' ? { episode_id: id } : { content_id: id })
+          });
+        setIsLiked(true);
+        toast({ title: 'تم إضافة للمفضلة' });
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل في تحديث المفضلة',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const toggleBookmark = async () => {
+    if (!user) {
+      toast({
+        title: 'تسجيل الدخول مطلوب',
+        description: 'يجب تسجيل الدخول لإضافة المحتوى لقائمة المشاهدة',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      if (isBookmarked) {
+        await supabase
+          .from('user_watchlist')
+          .delete()
+          .eq('user_id', user.id)
+          .eq(type === 'episode' ? 'episode_id' : 'content_id', id);
+        setIsBookmarked(false);
+        toast({ title: 'تم إزالة من قائمة المشاهدة' });
+      } else {
+        await supabase
+          .from('user_watchlist')
+          .insert({
+            user_id: user.id,
+            ...(type === 'episode' ? { episode_id: id } : { content_id: id })
+          });
+        setIsBookmarked(true);
+        toast({ title: 'تم إضافة لقائمة المشاهدة' });
+      }
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل في تحديث قائمة المشاهدة',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const shareContent = async () => {
+    const url = window.location.href;
+    const title = `${content?.title}${episode ? ` - الحلقة ${episode.episode_number}` : ''}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          url: url
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      navigator.clipboard.writeText(url);
+      toast({
+        title: 'تم نسخ الرابط',
+        description: 'تم نسخ رابط المحتوى إلى الحافظة'
+      });
+    }
+  };
+
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return `${hours}س ${mins}د`;
+    }
+    return `${mins}د`;
   };
 
   if (loading) {
@@ -217,193 +361,333 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
     );
   }
 
-  const currentLink = getCurrentStreamingLink();
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Video Player */}
-      <div className="relative bg-black">
-        <div className="aspect-video max-h-[70vh]">
-          {currentLink ? (
-            <video
-              ref={videoRef}
-              src={currentLink.streaming_url}
-              controls
-              className="w-full h-full"
-              onTimeUpdate={handleTimeUpdate}
-              poster={content?.poster_url}
-              preload="metadata"
-            >
-              المتصفح لا يدعم تشغيل الفيديو.
-            </video>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-white">
-              <div className="text-center">
-                <p className="text-xl mb-4">لا توجد روابط متاحة للمشاهدة</p>
-                <Button onClick={() => navigate(-1)} variant="outline">
-                  العودة
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-background/90">
+      {/* Enhanced Video Player */}
+      <div className="relative">
+        <AdvancedVideoPlayer
+          contentId={type === 'movie' ? id : undefined}
+          episodeId={type === 'episode' ? id : undefined}
+          onProgress={handleProgress}
+          onComplete={handleComplete}
+          poster={content?.poster_url}
+          autoPlay={false}
+        />
 
         {/* Back Button */}
         <Button
           onClick={() => navigate(-1)}
           variant="ghost"
           size="sm"
-          className="absolute top-4 left-4 text-white bg-black/50 hover:bg-black/70"
+          className="absolute top-4 left-4 text-white bg-black/50 hover:bg-black/70 backdrop-blur-sm z-10"
         >
           <ArrowLeft className="h-4 w-4 ml-1" />
           عودة
         </Button>
+
+        {/* Episode Navigation (for series/anime) */}
+        {type === 'episode' && allEpisodes.length > 1 && (
+          <div className="absolute top-4 right-4 flex gap-2 z-10">
+            <Button
+              onClick={() => navigateEpisode('prev')}
+              disabled={currentEpisodeIndex === 0}
+              variant="ghost"
+              size="sm"
+              className="text-white bg-black/50 hover:bg-black/70 backdrop-blur-sm"
+            >
+              <SkipBack className="h-4 w-4 ml-1" />
+              السابقة
+            </Button>
+            <Button
+              onClick={() => navigateEpisode('next')}
+              disabled={currentEpisodeIndex === allEpisodes.length - 1}
+              variant="ghost"
+              size="sm"
+              className="text-white bg-black/50 hover:bg-black/70 backdrop-blur-sm"
+            >
+              التالية
+              <SkipForward className="h-4 w-4 mr-1" />
+            </Button>
+          </div>
+        )}
       </div>
 
-      {/* Controls and Info */}
-      <div className="container mx-auto px-4 py-6 space-y-6">
-        {/* Title and Navigation */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold mb-2">
-              {content?.title}
-              {episode && ` - الحلقة ${episode.episode_number}`}
-              {episode?.title && `: ${episode.title}`}
-            </h1>
-            {episode?.season && (
-              <p className="text-muted-foreground">
-                الموسم {episode.season.season_number}
-              </p>
+      {/* Content Information and Controls */}
+      <div className="container mx-auto px-4 py-8 space-y-8">
+        {/* Header Section */}
+        <div className="space-y-6">
+          {/* Title and Actions */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div className="space-y-3">
+              <h1 className="text-3xl lg:text-4xl font-bold leading-tight">
+                {content?.title}
+                {episode && (
+                  <span className="block text-xl text-primary mt-1">
+                    الحلقة {episode.episode_number}
+                    {episode.title && `: ${episode.title}`}
+                  </span>
+                )}
+              </h1>
+              
+              {episode?.season && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Film className="h-4 w-4" />
+                  <span>الموسم {episode.season.season_number}</span>
+                </div>
+              )}
+
+              {/* Content Meta */}
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                {content?.release_date && (
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>{new Date(content.release_date).getFullYear()}</span>
+                  </div>
+                )}
+                
+                {(content?.duration || episode?.duration) && (
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>{formatDuration(content?.duration || episode?.duration || 0)}</span>
+                  </div>
+                )}
+                
+                {content?.rating && (
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 fill-current text-yellow-500" />
+                    <span>{content.rating.toFixed(1)}</span>
+                  </div>
+                )}
+                
+                <Badge variant="secondary" className="capitalize">
+                  {content?.content_type}
+                </Badge>
+              </div>
+
+              {/* Genres */}
+              {content?.genres && content.genres.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {content.genres.map((genre, index) => (
+                    <Badge key={index} variant="outline">
+                      {genre}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <Button
+                onClick={toggleLike}
+                variant={isLiked ? "default" : "outline"}
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
+                {isLiked ? 'مُعجب' : 'إعجاب'}
+              </Button>
+              
+              <Button
+                onClick={toggleBookmark}
+                variant={isBookmarked ? "default" : "outline"}
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
+                {isBookmarked ? 'محفوظ' : 'حفظ'}
+              </Button>
+              
+              <Button
+                onClick={shareContent}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Share2 className="h-4 w-4" />
+                مشاركة
+              </Button>
+            </div>
+          </div>
+
+          <Separator />
+        </div>
+
+        {/* Main Content */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column - Content Info */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Description */}
+            {(content?.description || episode?.description) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>الوصف</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {episode?.description || content?.description}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Episodes List for Series/Anime */}
+            {type === 'episode' && allEpisodes.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Play className="h-5 w-5" />
+                    حلقات الموسم {episode?.season?.season_number}
+                    <Badge variant="secondary" className="mr-auto">
+                      {allEpisodes.length} حلقة
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="max-h-96">
+                    <div className="space-y-2">
+                      {allEpisodes.map((ep, index) => (
+                        <Link
+                          key={ep.id}
+                          to={`/watch/episode/${ep.id}`}
+                          className={`block p-4 rounded-lg transition-all duration-200 border ${
+                            ep.id === id
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-background-secondary hover:bg-muted border-border hover:border-primary/20'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-1">
+                              <div className="font-medium">
+                                الحلقة {ep.episode_number}
+                                {ep.title && `: ${ep.title}`}
+                              </div>
+                              {ep.description && (
+                                <p className="text-sm text-muted-foreground line-clamp-2">
+                                  {ep.description}
+                                </p>
+                              )}
+                              {ep.air_date && (
+                                <div className="text-xs text-muted-foreground">
+                                  تاريخ البث: {new Date(ep.air_date).toLocaleDateString('ar')}
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="text-right space-y-1">
+                              {ep.duration && (
+                                <div className="text-sm text-muted-foreground">
+                                  {formatDuration(ep.duration)}
+                                </div>
+                              )}
+                              {ep.id === id && (
+                                <Badge variant="default" size="sm">
+                                  الحالية
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
             )}
           </div>
 
-          {type === 'episode' && allEpisodes.length > 1 && (
-            <div className="flex gap-2">
-              <Button
-                onClick={() => navigateEpisode('prev')}
-                disabled={currentEpisodeIndex === 0}
-                variant="outline"
-                size="sm"
-              >
-                <SkipBack className="h-4 w-4 ml-1" />
-                الحلقة السابقة
-              </Button>
-              <Button
-                onClick={() => navigateEpisode('next')}
-                disabled={currentEpisodeIndex === allEpisodes.length - 1}
-                variant="outline"
-                size="sm"
-              >
-                الحلقة التالية
-                <SkipForward className="h-4 w-4 mr-1" />
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Server Selection and Download */}
-        <div className="grid lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                خيارات المشاهدة
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">اختر الخادم:</label>
-                <Select value={selectedServer} onValueChange={setSelectedServer}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر خادم المشاهدة" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {streamingLinks.map((link) => (
-                      <SelectItem key={link.id} value={link.id}>
-                        {link.server_name} - {link.quality}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {currentLink?.download_url && (
-                <div>
-                  <label className="text-sm font-medium mb-2 block">روابط التحميل:</label>
-                  <Button asChild variant="outline" className="w-full">
-                    <a
-                      href={currentLink.download_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Download className="h-4 w-4 ml-2" />
-                      تحميل بجودة {currentLink.quality}
-                    </a>
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Episode List for Series */}
-          {type === 'episode' && allEpisodes.length > 0 && (
+          {/* Right Column - Additional Info */}
+          <div className="space-y-6">
+            {/* Quick Stats */}
             <Card>
               <CardHeader>
-                <CardTitle>حلقات الموسم {episode?.season?.season_number}</CardTitle>
+                <CardTitle>معلومات سريعة</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="max-h-80 overflow-y-auto space-y-2">
-                  {allEpisodes.map((ep, index) => (
-                    <Link
-                      key={ep.id}
-                      to={`/watch/episode/${ep.id}`}
-                      className={`block p-3 rounded-lg transition-smooth ${
-                        ep.id === id
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-background-secondary hover:bg-muted'
-                      }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">
-                          الحلقة {ep.episode_number}
-                          {ep.title && `: ${ep.title}`}
-                        </span>
-                        {ep.duration && (
-                          <span className="text-sm text-muted-foreground">
-                            {Math.floor(ep.duration / 60)}:{String(ep.duration % 60).padStart(2, '0')}
-                          </span>
-                        )}
-                      </div>
-                    </Link>
-                  ))}
+              <CardContent className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">النوع:</span>
+                  <Badge variant="secondary" className="capitalize">
+                    {content?.content_type}
+                  </Badge>
                 </div>
+                
+                {content?.release_date && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">سنة الإصدار:</span>
+                    <span>{new Date(content.release_date).getFullYear()}</span>
+                  </div>
+                )}
+                
+                {type === 'episode' && episode?.season && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">الموسم:</span>
+                    <span>{episode.season.season_number}</span>
+                  </div>
+                )}
+                
+                {(content?.duration || episode?.duration) && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">المدة:</span>
+                    <span>{formatDuration(content?.duration || episode?.duration || 0)}</span>
+                  </div>
+                )}
+                
+                {content?.rating && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">التقييم:</span>
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 fill-current text-yellow-500" />
+                      <span>{content.rating.toFixed(1)}</span>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
-          )}
-        </div>
 
-        {/* Available Servers */}
-        {streamingLinks.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>الخوادم المتاحة</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {streamingLinks.map((link) => (
-                  <Badge
-                    key={link.id}
-                    variant={selectedServer === link.id ? 'default' : 'secondary'}
-                    className="cursor-pointer"
-                    onClick={() => setSelectedServer(link.id)}
-                  >
-                    {link.server_name} ({link.quality})
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            {/* Available Servers */}
+            {streamingLinks.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>الخوادم المتاحة</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {streamingLinks.map((link) => (
+                      <div
+                        key={link.id}
+                        className="flex justify-between items-center p-3 bg-background-secondary rounded-lg"
+                      >
+                        <div>
+                          <div className="font-medium">{link.server_name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            جودة {link.quality}
+                          </div>
+                        </div>
+                        
+                        {link.download_url && (
+                          <Button
+                            asChild
+                            variant="outline"
+                            size="sm"
+                          >
+                            <a
+                              href={link.download_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Download className="h-4 w-4 ml-1" />
+                              تحميل
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
