@@ -115,7 +115,7 @@ export const ContentCard = ({
         {rating && rating > 0 && (
           <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/70 px-2 py-1 rounded-md backdrop-blur-sm">
             <Star className="h-3 w-3 text-accent fill-accent" />
-            <span className="text-xs text-white font-medium">{rating.toFixed(1)}</span>
+            <span className="text-xs text-white font-medium">{rating ? rating.toFixed(1) : 'غير متاح'}</span>
           </div>
         )}
       </div>
