@@ -84,7 +84,7 @@ export const ContentCard = ({
               className="bg-primary hover:bg-primary/90 text-white shadow-lg backdrop-blur-sm border border-white/20"
             >
               <Play className="h-4 w-4 ml-1" />
-              مشاهدة
+              مش��هدة
             </Button>
           </div>
 
@@ -139,7 +139,7 @@ export const ContentCard = ({
             {rating && (
               <div className="flex items-center gap-1">
                 <Star className="h-3 w-3 text-accent fill-accent" />
-                <span className="font-medium">{rating.toFixed(1)}</span>
+                <span className="font-medium">{rating ? rating.toFixed(1) : 'غير متاح'}</span>
               </div>
             )}
           </div>
