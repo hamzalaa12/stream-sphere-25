@@ -231,7 +231,7 @@ export const FeaturedContent = () => {
                 type={episode.season.content.content_type as 'series' | 'anime'}
                 rating={episode.season.content.rating}
                 year={new Date().getFullYear()}
-                categories={getCategoryLabels(episode.season.content.categories)}
+                categories={getCategoryLabels(episode.season.content.categories || [])}
                 viewCount={episode.view_count || 0}
                 poster_url={episode.thumbnail_url || episode.season.content.poster_url}
                 onClick={() => window.location.href = `/content/${episode.season.content.id}`}
