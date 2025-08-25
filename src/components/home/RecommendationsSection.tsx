@@ -25,7 +25,7 @@ interface RecommendedContent {
   title_ar?: string;
   poster_url?: string;
   backdrop_url?: string;
-  rating: number;
+  rating?: number;
   content_type: 'movie' | 'series' | 'anime';
   categories: string[];
   view_count: number;
@@ -144,7 +144,7 @@ export const RecommendationsSection = () => {
       
       // Highest rated
       fetchCategoryRecommendations(
-        'الأعلى تقييماً',
+        'ال��على تقييماً',
         'أفضل المحتوى من ناحية التقييم',
         <Star className="h-5 w-5" />,
         'text-yellow-500',
@@ -239,7 +239,7 @@ export const RecommendationsSection = () => {
 
     return {
       id: 'new-preferences',
-      title: 'جديد في تفضيلاتك',
+      title: 'ج��يد في تفضيلاتك',
       description: 'إضافات حديثة تناسب ذوقك',
       icon: <Sparkles className="h-5 w-5" />,
       color: 'text-purple-500',
