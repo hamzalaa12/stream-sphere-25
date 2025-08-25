@@ -455,7 +455,7 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
                 {content?.rating && (
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 fill-current text-yellow-500" />
-                    <span>{content.rating.toFixed(1)}</span>
+                    <span>{content.rating ? content.rating.toFixed(1) : 'غير متاح'}</span>
                   </div>
                 )}
                 
@@ -495,7 +495,7 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
                 className="flex items-center gap-2"
               >
                 <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
-                {isBookmarked ? 'محفوظ' : 'حفظ'}
+                {isBookmarked ? 'محفوظ' : 'ح��ظ'}
               </Button>
               
               <Button
@@ -637,7 +637,7 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
                     <span className="text-muted-foreground">التقييم:</span>
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 fill-current text-yellow-500" />
-                      <span>{content.rating.toFixed(1)}</span>
+                      <span>{content.rating ? content.rating.toFixed(1) : 'غير متاح'}</span>
                     </div>
                   </div>
                 )}
