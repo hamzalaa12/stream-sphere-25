@@ -11,6 +11,8 @@ import {
 import { AuthModal } from '@/components/auth/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useBreakpoint, getResponsiveSpacing } from '@/utils/responsive';
+import { FadeInDown } from '@/components/ui/animated-component';
 import {
   Film,
   Tv,
@@ -21,7 +23,9 @@ import {
   LogOut,
   Heart,
   Settings,
-  Shield
+  Shield,
+  Menu,
+  X
 } from 'lucide-react';
 
 export const Navbar = () => {
