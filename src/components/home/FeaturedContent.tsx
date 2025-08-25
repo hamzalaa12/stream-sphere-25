@@ -171,8 +171,16 @@ export const FeaturedContent = () => {
           {movies.map((movie) => (
             <div key={movie.id} className="flex-none w-48">
               <ContentCard
-                {...movie}
-                categories={getCategoryLabels(movie.categories)}
+                id={movie.id}
+                title={movie.title}
+                title_ar={movie.title_ar}
+                poster_url={movie.poster_url}
+                backdrop_url={movie.backdrop_url}
+                rating={movie.rating}
+                year={movie.year}
+                type={movie.type}
+                categories={getCategoryLabels(movie.categories || [])}
+                viewCount={movie.viewCount}
                 onClick={() => window.location.href = `/content/${movie.id}`}
               />
             </div>
