@@ -132,7 +132,7 @@ export const TrendingSection = () => {
                 <h2 className="text-3xl lg:text-4xl font-bold">المحتوى الرائج</h2>
               </div>
               <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                <Fire className="h-3 w-3 mr-1" />
+                <Flame className="h-3 w-3 mr-1" />
                 {getTimeframeLabel(timeframe)}
               </Badge>
             </div>
