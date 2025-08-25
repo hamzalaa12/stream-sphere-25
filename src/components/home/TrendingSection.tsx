@@ -190,7 +190,7 @@ export const TrendingSection = () => {
                       rating={item.rating}
                       year={item.release_date ? new Date(item.release_date).getFullYear() : undefined}
                       type={item.content_type}
-                      categories={getCategoryLabels(item.categories)}
+                      categories={getCategoryLabels(item.categories || [])}
                       viewCount={item.view_count}
                       onClick={() => navigate(`/content/${item.id}`)}
                     />
