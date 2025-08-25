@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { AdvancedVideoPlayer } from '@/components/player/AdvancedVideoPlayer';
+
 
 interface StreamingLink {
   id: string;
@@ -362,52 +362,13 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-background/90">
-      {/* Enhanced Video Player */}
-      <div className="relative">
-        <AdvancedVideoPlayer
-          contentId={type === 'movie' ? id : undefined}
-          episodeId={type === 'episode' ? id : undefined}
-          onProgress={handleProgress}
-          onComplete={handleComplete}
-          poster={content?.poster_url}
-          autoPlay={false}
-        />
 
-        {/* Back Button */}
-        <Button
-          onClick={() => navigate(-1)}
-          variant="ghost"
-          size="sm"
-          className="absolute top-4 left-4 text-white bg-black/50 hover:bg-black/70 backdrop-blur-sm z-10"
         >
           <ArrowLeft className="h-4 w-4 ml-1" />
           عودة
         </Button>
 
-        {/* Episode Navigation (for series/anime) */}
-        {type === 'episode' && allEpisodes.length > 1 && (
-          <div className="absolute top-4 right-4 flex gap-2 z-10">
-            <Button
-              onClick={() => navigateEpisode('prev')}
-              disabled={currentEpisodeIndex === 0}
-              variant="ghost"
-              size="sm"
-              className="text-white bg-black/50 hover:bg-black/70 backdrop-blur-sm"
-            >
-              <SkipBack className="h-4 w-4 ml-1" />
-              السابقة
-            </Button>
-            <Button
-              onClick={() => navigateEpisode('next')}
-              disabled={currentEpisodeIndex === allEpisodes.length - 1}
-              variant="ghost"
-              size="sm"
-              className="text-white bg-black/50 hover:bg-black/70 backdrop-blur-sm"
-            >
-              التالية
-              <SkipForward className="h-4 w-4 mr-1" />
-            </Button>
+
           </div>
         )}
       </div>
@@ -476,36 +437,12 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <Button
-                onClick={toggleLike}
-                variant={isLiked ? "default" : "outline"}
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-                {isLiked ? 'مُعجب' : 'إعجاب'}
-              </Button>
-              
-              <Button
-                onClick={toggleBookmark}
-                variant={isBookmarked ? "default" : "outline"}
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
-                {isBookmarked ? 'محفوظ' : 'ح��ظ'}
+
               </Button>
               
               <Button
                 onClick={shareContent}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <Share2 className="h-4 w-4" />
-                مشاركة
+                variant="outline">>>>>>> main
               </Button>
             </div>
           </div>
@@ -513,102 +450,7 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
           <Separator />
         </div>
 
-        {/* Main Content */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Content Info */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Description */}
-            {(content?.description || episode?.description) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>الوصف</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {episode?.description || content?.description}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
 
-            {/* Episodes List for Series/Anime */}
-            {type === 'episode' && allEpisodes.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Play className="h-5 w-5" />
-                    حلقات الموسم {episode?.season?.season_number}
-                    <Badge variant="secondary" className="mr-auto">
-                      {allEpisodes.length} حلقة
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="max-h-96">
-                    <div className="space-y-2">
-                      {allEpisodes.map((ep, index) => (
-                        <Link
-                          key={ep.id}
-                          to={`/watch/episode/${ep.id}`}
-                          className={`block p-4 rounded-lg transition-all duration-200 border ${
-                            ep.id === id
-                              ? 'bg-primary text-primary-foreground border-primary'
-                              : 'bg-background-secondary hover:bg-muted border-border hover:border-primary/20'
-                          }`}
-                        >
-                          <div className="flex justify-between items-start">
-                            <div className="space-y-1">
-                              <div className="font-medium">
-                                الحلقة {ep.episode_number}
-                                {ep.title && `: ${ep.title}`}
-                              </div>
-                              {ep.description && (
-                                <p className="text-sm text-muted-foreground line-clamp-2">
-                                  {ep.description}
-                                </p>
-                              )}
-                              {ep.air_date && (
-                                <div className="text-xs text-muted-foreground">
-                                  تاريخ البث: {new Date(ep.air_date).toLocaleDateString('ar')}
-                                </div>
-                              )}
-                            </div>
-                            
-                            <div className="text-right space-y-1">
-                              {ep.duration && (
-                                <div className="text-sm text-muted-foreground">
-                                  {formatDuration(ep.duration)}
-                                </div>
-                              )}
-                              {ep.id === id && (
-                                <Badge variant="default" size="sm">
-                                  الحالية
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Right Column - Additional Info */}
-          <div className="space-y-6">
-            {/* Quick Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle>معلومات سريعة</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">النوع:</span>
-                  <Badge variant="secondary" className="capitalize">
-                    {content?.content_type}
-                  </Badge>
                 </div>
                 
                 {content?.release_date && (
@@ -644,50 +486,6 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
               </CardContent>
             </Card>
 
-            {/* Available Servers */}
-            {streamingLinks.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>الخوادم المتاحة</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {streamingLinks.map((link) => (
-                      <div
-                        key={link.id}
-                        className="flex justify-between items-center p-3 bg-background-secondary rounded-lg"
-                      >
-                        <div>
-                          <div className="font-medium">{link.server_name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            جودة {link.quality}
-                          </div>
-                        </div>
-                        
-                        {link.download_url && (
-                          <Button
-                            asChild
-                            variant="outline"
-                            size="sm"
-                          >
-                            <a
-                              href={link.download_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <Download className="h-4 w-4 ml-1" />
-                              تحميل
-                            </a>
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );

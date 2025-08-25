@@ -38,7 +38,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { EpisodeCard } from '@/components/content/EpisodeCard';
-import { EnhancedContentCard } from '@/components/content/EnhancedContentCard';
+
 
 interface ContentData {
   id: string;
@@ -494,135 +494,18 @@ export default function ContentDetail() {
     );
   }
 
-  const averageRating = calculateAverageRating();
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-background/90">
-      {/* Enhanced Hero Section */}
-      <div className="relative h-[70vh] lg:h-[80vh] overflow-hidden">
-        {content.backdrop_url && (
-          <>
-            <img
-              src={content.backdrop_url}
-              alt={content.title}
-              className="w-full h-full object-cover scale-105 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-          </>
-        )}
-        
-        <div className="absolute inset-0 flex items-end">
-          <div className="container mx-auto px-6 lg:px-8 pb-12">
-            <div className="grid lg:grid-cols-3 gap-8 items-end">
-              {/* Poster */}
-              <div className="flex justify-center lg:justify-start">
-                {content.poster_url && (
-                  <div className="relative group">
-                    <img
-                      src={content.poster_url}
-                      alt={content.title}
-                      className="w-64 h-96 lg:w-72 lg:h-[432px] object-cover rounded-xl shadow-2xl transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  </div>
-                )}
-              </div>
-              
-              {/* Content Info */}
-              <div className="lg:col-span-2 space-y-6 text-white">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      {getContentTypeIcon(content.content_type)}
-                      {getContentTypeLabel(content.content_type)}
-                    </Badge>
-                    {content.is_netflix && (
-                      <Badge className="bg-red-600 hover:bg-red-700">
-                        Netflix
-                      </Badge>
-                    )}
-                    <Badge variant="outline" className="border-white/30 text-white">
-                      {content.language}
-                    </Badge>
-                  </div>
-
-                  <h1 className="text-4xl lg:text-6xl font-bold leading-tight mb-3">
-                    {content.title}
-                  </h1>
-                  
-                  {content.title_en && (
-                    <p className="text-xl lg:text-2xl text-white/80 font-medium">
-                      {content.title_en}
-                    </p>
-                  )}
-                </div>
-
-                {/* Enhanced Meta Information */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium">{averageRating > 0 ? averageRating.toFixed(1) : content.rating}/10</span>
                   </div>
                   
                   {content.release_date && (
-                    <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>{new Date(content.release_date).getFullYear()}</span>
+
                     </div>
                   )}
                   
                   {content.duration && (
-                    <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2">
-                      <Clock className="h-4 w-4" />
-                      <span>{formatDuration(content.duration)}</span>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2">
-                    <Eye className="h-4 w-4" />
-                    <span>{(content.view_count || 0).toLocaleString()}</span>
-                  </div>
-                </div>
 
-                {/* Genres */}
-                <div className="flex flex-wrap gap-2">
-                  {content.categories?.slice(0, 4).map((category, index) => (
-                    <Badge key={index} variant="outline" className="border-white/30 text-white hover:bg-white/10">
-                      {category}
-                    </Badge>
-                  ))}
-                  {content.categories && content.categories.length > 4 && (
-                    <Badge variant="outline" className="border-white/30 text-white">
-                      +{content.categories.length - 4} أخرى
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Description Preview */}
-                {content.description && (
-                  <p className="text-white/90 leading-relaxed max-w-2xl line-clamp-3 text-lg">
-                    {content.description}
-                  </p>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-4 pt-4">
-                  {content.content_type === 'movie' ? (
-                    <Link to={`/watch/${content.id}`}>
-                      <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90 text-white font-semibold px-8">
-                        <Play className="h-5 w-5" />
-                        مشاهدة الآن
-                      </Button>
-                    </Link>
-                  ) : (
-                    content.seasons?.[0]?.episodes?.[0] && (
-                      <Link to={`/watch/episode/${content.seasons[0].episodes[0].id}`}>
-                        <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90 text-white font-semibold px-8">
-                          <Play className="h-5 w-5" />
-                          بدء المشاهدة
                         </Button>
-                      </Link>
+                      </div>
                     )
                   )}
                   
@@ -630,43 +513,7 @@ export default function ContentDetail() {
                     size="lg"
                     variant="outline"
                     onClick={toggleFavorite}
-                    className="gap-2 border-white/30 text-white hover:bg-white/10"
-                  >
-                    <Heart className={`h-5 w-5 ${userStats.isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
-                    {userStats.isFavorite ? 'من المفضلة' : 'إضافة للمفضلة'}
-                  </Button>
-                  
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    onClick={toggleWatchlist}
-                    className="gap-2 border-white/30 text-white hover:bg-white/10"
-                  >
-                    <Bookmark className={`h-5 w-5 ${userStats.isInWatchlist ? 'fill-current' : ''}`} />
-                    {userStats.isInWatchlist ? 'في قائمة المشاهدة' : 'إضافة للقائمة'}
-                  </Button>
-                  
-                  <Button
-                    size="lg"
-                    variant="ghost"
-                    onClick={shareContent}
-                    className="gap-2 text-white hover:bg-white/10"
-                  >
-                    <Share2 className="h-5 w-5" />
-                    مشاركة
-                  </Button>
-                  
-                  {content.trailer_url && (
-                    <Button 
-                      size="lg" 
-                      variant="ghost" 
-                      className="gap-2 text-white hover:bg-white/10"
-                      asChild
-                    >
-                      <a href={content.trailer_url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-5 w-5" />
-                        مشاهدة الإعلان
-                      </a>
+
                     </Button>
                   )}
                 </div>
@@ -677,250 +524,55 @@ export default function ContentDetail() {
       </div>
 
       {/* Content Details */}
-      <div className="container mx-auto px-4 py-12 space-y-8">
-        {/* Stats Row */}
-        {user && !statsLoading && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 border-blue-500/20">
-              <CardContent className="p-4 text-center">
-                <TrendingUp className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-blue-600">{reviews.length}</div>
-                <div className="text-sm text-muted-foreground">تقييم</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gradient-to-r from-green-500/10 to-green-600/10 border-green-500/20">
-              <CardContent className="p-4 text-center">
-                <Users className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-green-600">{content.view_count || 0}</div>
-                <div className="text-sm text-muted-foreground">مشاهدة</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 border-purple-500/20">
-              <CardContent className="p-4 text-center">
-                <Star className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-purple-600">
-                  {averageRating > 0 ? averageRating.toFixed(1) : content.rating}
-                </div>
-                <div className="text-sm text-muted-foreground">متوسط التقييم</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 border-orange-500/20">
-              <CardContent className="p-4 text-center">
-                <Award className="h-8 w-8 text-orange-500 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-orange-600">
-                  {userStats.userRating || '--'}
-                </div>
-                <div className="text-sm text-muted-foreground">تقييمك</div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
 
-        {/* Enhanced Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="bg-card/50 backdrop-blur-sm p-1 h-12">
-            <TabsTrigger value="info" className="flex items-center gap-2">
-              <Info className="h-4 w-4" />
-              معلومات
-            </TabsTrigger>
-            {(content.content_type === 'series' || content.content_type === 'anime') && (
-              <TabsTrigger value="episodes" className="flex items-center gap-2">
-                <Play className="h-4 w-4" />
-                الحلقات ({content.seasons?.reduce((total, season) => total + (season.episode_count || 0), 0) || 0})
-              </TabsTrigger>
-            )}
-            <TabsTrigger value="reviews" className="flex items-center gap-2">
-              <MessageCircle className="h-4 w-4" />
-              التقييمات ({reviews.length})
-            </TabsTrigger>
-            <TabsTrigger value="related" className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              محتوى مشابه
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Info Tab */}
-          <TabsContent value="info" className="space-y-8">
-            <div className="grid lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Info className="h-5 w-5 text-primary" />
-                      نبذة عن {content.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground leading-7 text-lg">
-                      {content.description || 'لا توجد معلومات متاحة حول هذا المحتوى.'}
-                    </p>
-                  </CardContent>
-                </Card>
-
-                {/* Cast and Crew */}
-                {(content.cast || content.director || content.writer) && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>فريق العمل</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {content.director && (
-                        <div>
-                          <div className="font-semibold mb-2">المخرج:</div>
-                          <Badge variant="secondary">{content.director}</Badge>
-                        </div>
-                      )}
-                      
-                      {content.writer && (
-                        <div>
-                          <div className="font-semibold mb-2">الكاتب:</div>
-                          <Badge variant="secondary">{content.writer}</Badge>
-                        </div>
-                      )}
-                      
-                      {content.cast && content.cast.length > 0 && (
-                        <div>
-                          <div className="font-semibold mb-2">الممثلون:</div>
-                          <div className="flex flex-wrap gap-2">
-                            {content.cast.slice(0, 6).map((actor, index) => (
-                              <Badge key={index} variant="outline">{actor}</Badge>
-                            ))}
-                            {content.cast.length > 6 && (
-                              <Badge variant="outline">+{content.cast.length - 6} آخرين</Badge>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-
-              {/* Sidebar */}
-              <div className="space-y-6">
-                {/* Quick Details */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>معلومات سريعة</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">النوع:</span>
-                        <Badge variant="secondary" className="capitalize">
-                          {getContentTypeLabel(content.content_type)}
-                        </Badge>
-                      </div>
-                      
-                      {content.release_date && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">سنة الإصدار:</span>
-                          <span className="font-medium">{new Date(content.release_date).getFullYear()}</span>
-                        </div>
-                      )}
-                      
-                      {content.duration && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">المدة:</span>
-                          <span className="font-medium">{formatDuration(content.duration)}</span>
-                        </div>
-                      )}
-                      
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">التقييم:</span>
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="font-medium">
-                            {averageRating > 0 ? averageRating.toFixed(1) : content.rating}/10
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">المشاهدات:</span>
-                        <span className="font-medium">{(content.view_count || 0).toLocaleString()}</span>
-                      </div>
-                      
-                      {content.country && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">البلد:</span>
-                          <span className="font-medium">{content.country}</span>
-                        </div>
-                      )}
-                      
-                      {content.studio && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">الاستوديو:</span>
-                          <span className="font-medium">{content.studio}</span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Available Servers */}
-                {content.streaming_links && content.streaming_links.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>الخوادم المتاحة</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {content.streaming_links.map((link) => (
-                          <div
-                            key={link.id}
-                            className="flex justify-between items-center p-3 bg-background-secondary rounded-lg"
-                          >
-                            <div>
-                              <div className="font-medium">{link.server_name}</div>
-                              <div className="text-sm text-muted-foreground">
-                                جودة {link.quality}
-                              </div>
-                            </div>
-                            
-                            {link.download_url && (
-                              <Button
-                                asChild
-                                variant="outline"
-                                size="sm"
-                              >
-                                <a
-                                  href={link.download_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  <Download className="h-4 w-4 ml-1" />
-                                  تحميل
-                                </a>
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
+                    
           </TabsContent>
 
           {/* Episodes Tab */}
+          {(content.content_type === 'series' || content.content_type === 'anime') && (
+            <TabsContent value="seasons" className="space-y-6">
+              {content.seasons && content.seasons.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {content.seasons.map((season) => (
+                    <Card key={season.id} className="hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/50">
+                      <CardContent className="p-6">
+                        <div className="space-y-4">
+                          <h3 className="text-xl font-bold">الموسم {season.season_number}</h3>
+                          {season.title && (
+                            <p className="text-muted-foreground font-medium">{season.title}</p>
+                          )}
+                          <div className="text-sm text-muted-foreground">
+                            عدد الحلقات: {season.episode_count}
+                          </div>
+                          <Button 
+                            onClick={() => setSelectedSeason(season.season_number)}
+                            className="w-full gap-2"
+                            variant={selectedSeason === season.season_number ? 'default' : 'outline'}
+                          >
+                            <Play className="h-4 w-4" />
+                            عرض الحلقات
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          )}
+
           {(content.content_type === 'series' || content.content_type === 'anime') && (
             <TabsContent value="episodes" className="space-y-6">
               {content.seasons && content.seasons.length > 0 && (
                 <div>
                   {/* Season Selector */}
                   {content.seasons.length > 1 && (
-                    <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
                       {content.seasons.map((season) => (
                         <Button
                           key={season.id}
                           variant={selectedSeason === season.season_number ? 'default' : 'outline'}
                           onClick={() => setSelectedSeason(season.season_number)}
-                          className="whitespace-nowrap"
+                          className="whitespace-nowrap px-6 py-3 text-base"
                         >
                           الموسم {season.season_number}
                           <Badge variant="secondary" className="mr-2">
@@ -931,28 +583,7 @@ export default function ContentDetail() {
                     </div>
                   )}
 
-                  {/* Episodes Grid */}
-                  <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {content.seasons
-                      .find(s => s.season_number === selectedSeason)
-                      ?.episodes?.map((episode) => (
-                      <EpisodeCard
-                        key={episode.id}
-                        episode={{
-                          id: episode.id,
-                          title: episode.title || `الحلقة ${episode.episode_number}`,
-                          episode_number: episode.episode_number,
-                          duration: episode.duration,
-                          description: episode.description,
-                          thumbnail_url: episode.thumbnail_url,
-                          air_date: episode.air_date,
-                          rating: episode.rating,
-                          view_count: episode.view_count,
-                          isWatched: userStats.watchedEpisodes.includes(episode.id),
-                          watchProgress: 0 // This would come from watch history
-                        }}
-                        variant="detailed"
-                      />
+
                     ))}
                   </div>
                 </div>
@@ -960,7 +591,7 @@ export default function ContentDetail() {
             </TabsContent>
           )}
 
-          {/* Reviews Tab */}
+
           <TabsContent value="reviews" className="space-y-6">
             {user && (
               <Card>
