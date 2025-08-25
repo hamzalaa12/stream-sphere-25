@@ -268,7 +268,7 @@ export const NewReleasesSection = () => {
                       <span>{getTypeLabel(item.content_type)}</span>
                       <div className="flex items-center gap-1">
                         <Sparkles className="h-3 w-3" />
-                        <span>{item.rating.toFixed(1)}</span>
+                        <span>{item.rating ? item.rating.toFixed(1) : 'غير متاح'}</span>
                       </div>
                     </div>
 
