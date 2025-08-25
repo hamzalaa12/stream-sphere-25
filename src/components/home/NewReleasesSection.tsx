@@ -12,7 +12,7 @@ interface NewRelease {
   title_ar?: string;
   poster_url?: string;
   backdrop_url?: string;
-  rating: number;
+  rating?: number;
   content_type: 'movie' | 'series' | 'anime';
   categories: string[];
   view_count: number;
