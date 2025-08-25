@@ -10,6 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { EpisodeCard } from '@/components/content/EpisodeCard';
+import { RelatedContentGrid } from '@/components/content/RelatedContentGrid';
 
 interface ContentData {
   id: string;
@@ -284,10 +286,35 @@ export default function ContentDetail() {
     );
   }
 
+  // Fetch related content
+  const [relatedContent, setRelatedContent] = useState<ContentData[]>([]);
+
+  const fetchRelatedContent = async (contentId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('content')
+        .select('*')
+        .neq('id', contentId)
+        .in('categories', content?.categories || [])
+        .limit(8);
+
+      if (error) throw error;
+      setRelatedContent(data || []);
+    } catch (error) {
+      console.error('Error fetching related content:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (content && id) {
+      fetchRelatedContent(id);
+    }
+  }, [content, id]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="relative h-96 lg:h-[500px] overflow-hidden">
+      <div className="relative h-96 lg:h-[600px] overflow-hidden">
         {content.backdrop_url && (
           <img
             src={content.backdrop_url}
@@ -295,79 +322,97 @@ export default function ContentDetail() {
             className="w-full h-full object-cover"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         
         <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8">
           <div className="container mx-auto">
-            <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex flex-col lg:flex-row gap-8">
               {content.poster_url && (
                 <img
                   src={content.poster_url}
                   alt={content.title}
-                  className="w-48 h-64 lg:w-60 lg:h-80 object-cover rounded-lg shadow-elevated mx-auto lg:mx-0"
+                  className="w-52 h-72 lg:w-64 lg:h-96 object-cover rounded-xl shadow-2xl mx-auto lg:mx-0 border-2 border-white/20"
                 />
               )}
               
-              <div className="flex-1 space-y-4">
+              <div className="flex-1 space-y-6">
                 <div>
-                  <h1 className="text-3xl lg:text-5xl font-bold mb-2">{content.title}</h1>
+                  <h1 className="text-4xl lg:text-6xl font-bold mb-3 drop-shadow-lg">{content.title}</h1>
                   {content.title_en && (
-                    <p className="text-xl text-muted-foreground">{content.title_en}</p>
+                    <p className="text-xl lg:text-2xl text-muted-foreground opacity-90">{content.title_en}</p>
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-accent text-accent" />
-                    <span>{content.rating}/10</span>
+                <div className="flex flex-wrap items-center gap-6 text-sm">
+                  <div className="flex items-center gap-2 bg-black/30 px-3 py-1 rounded-full">
+                    <Star className="h-5 w-5 fill-accent text-accent" />
+                    <span className="font-bold text-white">{content.rating}/10</span>
                   </div>
                   {content.release_date && (
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>{new Date(content.release_date).getFullYear()}</span>
+                    <div className="flex items-center gap-2 bg-black/30 px-3 py-1 rounded-full">
+                      <Calendar className="h-5 w-5 text-white" />
+                      <span className="text-white">{new Date(content.release_date).getFullYear()}</span>
                     </div>
                   )}
                   {content.duration && (
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{formatDuration(content.duration)}</span>
+                    <div className="flex items-center gap-2 bg-black/30 px-3 py-1 rounded-full">
+                      <Clock className="h-5 w-5 text-white" />
+                      <span className="text-white">{formatDuration(content.duration)}</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-1">
-                    <Eye className="h-4 w-4" />
-                    <span>{content.view_count} مشاهدة</span>
+                  <div className="flex items-center gap-2 bg-black/30 px-3 py-1 rounded-full">
+                    <Eye className="h-5 w-5 text-white" />
+                    <span className="text-white">{content.view_count.toLocaleString()} مشاهدة</span>
                   </div>
                   {content.language && (
-                    <div className="flex items-center gap-1">
-                      <Globe className="h-4 w-4" />
-                      <span>{content.language}</span>
+                    <div className="flex items-center gap-2 bg-black/30 px-3 py-1 rounded-full">
+                      <Globe className="h-5 w-5 text-white" />
+                      <span className="text-white">{content.language}</span>
                     </div>
                   )}
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {content.categories?.map((category, index) => (
-                    <Badge key={index} variant="secondary">{category}</Badge>
-                  ))}
-                  {content.is_netflix && <Badge className="bg-red-600">نتفليكس</Badge>}
                 </div>
 
                 <div className="flex flex-wrap gap-3">
+                  {content.categories?.map((category, index) => (
+                    <Badge key={index} variant="secondary" className="text-sm px-3 py-1">{category}</Badge>
+                  ))}
+                  {content.is_netflix && (
+                    <Badge className="bg-red-600 hover:bg-red-700 text-sm px-3 py-1">نتفليكس</Badge>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-4">
                   {content.content_type === 'movie' ? (
-                    <Link to={`/watch/${content.id}`}>
-                      <Button size="lg" variant="primary" className="gap-2">
-                        <Play className="h-5 w-5" />
-                        مشاهدة الآن
-                      </Button>
-                    </Link>
-                  ) : (
-                    content.seasons?.[0]?.episodes?.[0] && (
-                      <Link to={`/watch/episode/${content.seasons[0].episodes[0].id}`}>
-                        <Button size="lg" variant="primary" className="gap-2">
-                          <Play className="h-5 w-5" />
-                          بدء المشاهدة
+                    <div className="flex gap-3">
+                      <Link to={`/watch/${content.id}`}>
+                        <Button size="lg" className="gap-3 text-lg px-8 py-3 bg-primary hover:bg-primary/90">
+                          <Play className="h-6 w-6" />
+                          شاهد الآن
                         </Button>
                       </Link>
+                      {content.streaming_links?.find(link => link.download_url) && (
+                        <Button size="lg" variant="outline" className="gap-3 text-lg px-8 py-3" asChild>
+                          <a href={content.streaming_links.find(link => link.download_url)?.download_url} target="_blank" rel="noopener noreferrer">
+                            <Plus className="h-6 w-6" />
+                            حمل الآن
+                          </a>
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    content.seasons?.[0]?.episodes?.[0] && (
+                      <div className="flex gap-3">
+                        <Link to={`/watch/episode/${content.seasons[0].episodes[0].id}`}>
+                          <Button size="lg" className="gap-3 text-lg px-8 py-3 bg-primary hover:bg-primary/90">
+                            <Play className="h-6 w-6" />
+                            شاهد الآن
+                          </Button>
+                        </Link>
+                        <Button size="lg" variant="outline" className="gap-3 text-lg px-8 py-3">
+                          <Plus className="h-6 w-6" />
+                          حمل الآن
+                        </Button>
+                      </div>
                     )
                   )}
                   
@@ -375,15 +420,15 @@ export default function ContentDetail() {
                     size="lg"
                     variant="outline"
                     onClick={toggleFavorite}
-                    className="gap-2"
+                    className="gap-3 text-lg px-8 py-3"
                   >
-                    <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+                    <Heart className={`h-6 w-6 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
                     {isFavorite ? 'من المفضلة' : 'إضافة للمفضلة'}
                   </Button>
                   
                   {content.trailer_url && (
-                    <Button size="lg" variant="ghost" className="gap-2">
-                      <Play className="h-5 w-5" />
+                    <Button size="lg" variant="ghost" className="gap-3 text-lg px-8 py-3">
+                      <Play className="h-6 w-6" />
                       مشاهدة الإعلان
                     </Button>
                   )}
@@ -396,22 +441,26 @@ export default function ContentDetail() {
 
       {/* Content Details */}
       <div className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="info" className="space-y-6">
-          <TabsList className="bg-background-secondary">
-            <TabsTrigger value="info">معلومات</TabsTrigger>
+        <Tabs defaultValue="info" className="space-y-8">
+          <TabsList className="bg-card border border-border p-1 h-12">
+            <TabsTrigger value="info" className="px-6 py-2 text-base">معلومات</TabsTrigger>
             {(content.content_type === 'series' || content.content_type === 'anime') && (
-              <TabsTrigger value="episodes">الحلقات</TabsTrigger>
+              <TabsTrigger value="seasons" className="px-6 py-2 text-base">المواسم</TabsTrigger>
             )}
-            <TabsTrigger value="reviews">التقييمات</TabsTrigger>
+            {(content.content_type === 'series' || content.content_type === 'anime') && (
+              <TabsTrigger value="episodes" className="px-6 py-2 text-base">الحلقات</TabsTrigger>
+            )}
+            <TabsTrigger value="related" className="px-6 py-2 text-base">محتوى مشابه</TabsTrigger>
+            <TabsTrigger value="reviews" className="px-6 py-2 text-base">التقييمات</TabsTrigger>
           </TabsList>
 
           <TabsContent value="info" className="space-y-6">
-            <Card>
+            <Card className="border-2">
               <CardHeader>
-                <CardTitle>نبذة عن {content.title}</CardTitle>
+                <CardTitle className="text-2xl">نبذة عن {content.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground leading-7">
+                <p className="text-muted-foreground leading-8 text-lg">
                   {content.description || 'لا توجد معلومات متاحة حول هذا المحتوى.'}
                 </p>
               </CardContent>
@@ -419,17 +468,49 @@ export default function ContentDetail() {
           </TabsContent>
 
           {(content.content_type === 'series' || content.content_type === 'anime') && (
+            <TabsContent value="seasons" className="space-y-6">
+              {content.seasons && content.seasons.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {content.seasons.map((season) => (
+                    <Card key={season.id} className="hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/50">
+                      <CardContent className="p-6">
+                        <div className="space-y-4">
+                          <h3 className="text-xl font-bold">الموسم {season.season_number}</h3>
+                          {season.title && (
+                            <p className="text-muted-foreground font-medium">{season.title}</p>
+                          )}
+                          <div className="text-sm text-muted-foreground">
+                            عدد الحلقات: {season.episode_count}
+                          </div>
+                          <Button 
+                            onClick={() => setSelectedSeason(season.season_number)}
+                            className="w-full gap-2"
+                            variant={selectedSeason === season.season_number ? 'default' : 'outline'}
+                          >
+                            <Play className="h-4 w-4" />
+                            عرض الحلقات
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          )}
+
+          {(content.content_type === 'series' || content.content_type === 'anime') && (
             <TabsContent value="episodes" className="space-y-6">
               {content.seasons && content.seasons.length > 0 && (
                 <div>
                   {content.seasons.length > 1 && (
-                    <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                    <div className="flex gap-3 mb-8 overflow-x-auto pb-2">
                       {content.seasons.map((season) => (
                         <Button
                           key={season.id}
-                          variant={selectedSeason === season.season_number ? 'primary' : 'outline'}
+                          variant={selectedSeason === season.season_number ? 'default' : 'outline'}
                           onClick={() => setSelectedSeason(season.season_number)}
-                          className="whitespace-nowrap"
+                          className="whitespace-nowrap px-6 py-3 text-base"
                         >
                           الموسم {season.season_number}
                         </Button>
@@ -437,42 +518,52 @@ export default function ContentDetail() {
                     </div>
                   )}
 
-                  <div className="grid gap-4">
+                  <div className="grid gap-6">
                     {content.seasons
                       .find(s => s.season_number === selectedSeason)
                       ?.episodes?.map((episode, index) => (
-                      <Card key={episode.id} className="hover:bg-card-hover transition-smooth cursor-pointer">
-                        <Link to={`/watch/episode/${episode.id}`}>
-                          <CardContent className="p-4">
-                            <div className="flex gap-4">
-                              {episode.thumbnail_url && (
-                                <img
-                                  src={episode.thumbnail_url}
-                                  alt={episode.title}
-                                  className="w-32 h-20 object-cover rounded"
-                                />
-                              )}
-                              <div className="flex-1">
-                                <div className="flex justify-between items-start mb-2">
-                                  <h3 className="font-semibold">
-                                    الحلقة {episode.episode_number}
-                                    {episode.title && `: ${episode.title}`}
-                                  </h3>
-                                  {episode.duration && (
-                                    <span className="text-sm text-muted-foreground">
-                                      {formatDuration(episode.duration)}
-                                    </span>
-                                  )}
-                                </div>
-                                {episode.description && (
-                                  <p className="text-sm text-muted-foreground line-clamp-2">
-                                    {episode.description}
-                                  </p>
+                      <Card key={episode.id} className="hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/50 group">
+                        <CardContent className="p-0">
+                          <div className="flex gap-6 p-6">
+                            {episode.thumbnail_url && (
+                              <img
+                                src={episode.thumbnail_url}
+                                alt={episode.title}
+                                className="w-40 h-24 object-cover rounded-lg border"
+                              />
+                            )}
+                            <div className="flex-1 space-y-3">
+                              <div className="flex justify-between items-start">
+                                <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
+                                  الحلقة {episode.episode_number}
+                                  {episode.title && `: ${episode.title}`}
+                                </h3>
+                                {episode.duration && (
+                                  <span className="text-muted-foreground font-medium">
+                                    {formatDuration(episode.duration)}
+                                  </span>
                                 )}
                               </div>
+                              {episode.description && (
+                                <p className="text-muted-foreground leading-relaxed">
+                                  {episode.description}
+                                </p>
+                              )}
+                              <div className="flex gap-3 pt-2">
+                                <Link to={`/watch/episode/${episode.id}`}>
+                                  <Button className="gap-2">
+                                    <Play className="h-4 w-4" />
+                                    شاهد الآن
+                                  </Button>
+                                </Link>
+                                <Button variant="outline" className="gap-2">
+                                  <Plus className="h-4 w-4" />
+                                  حمل الآن
+                                </Button>
+                              </div>
                             </div>
-                          </CardContent>
-                        </Link>
+                          </div>
+                        </CardContent>
                       </Card>
                     ))}
                   </div>
@@ -480,6 +571,40 @@ export default function ContentDetail() {
               )}
             </TabsContent>
           )}
+
+          <TabsContent value="related" className="space-y-6">
+            <Card className="border-2">
+              <CardHeader>
+                <CardTitle className="text-2xl">محتوى مشابه</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {relatedContent.map((item) => (
+                    <Link key={item.id} to={`/content/${item.id}`}>
+                      <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105">
+                        <CardContent className="p-0">
+                          <div className="aspect-[2/3] overflow-hidden rounded-t-lg">
+                            <img
+                              src={item.poster_url || '/placeholder.svg'}
+                              alt={item.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="p-3">
+                            <h4 className="font-medium text-sm line-clamp-2">{item.title}</h4>
+                            <div className="flex items-center gap-1 mt-1">
+                              <Star className="h-3 w-3 fill-accent text-accent" />
+                              <span className="text-xs text-muted-foreground">{item.rating}</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="reviews" className="space-y-6">
             {user && (

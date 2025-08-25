@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { EpisodeCard } from '@/components/content/EpisodeCard';
+import { ServerCard } from '@/components/content/ServerCard';
 
 interface StreamingLink {
   id: string;
@@ -223,7 +225,7 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
     <div className="min-h-screen bg-background">
       {/* Video Player */}
       <div className="relative bg-black">
-        <div className="aspect-video max-h-[70vh]">
+        <div className="aspect-video">
           {currentLink ? (
             <video
               ref={videoRef}
@@ -253,123 +255,126 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
           onClick={() => navigate(-1)}
           variant="ghost"
           size="sm"
-          className="absolute top-4 left-4 text-white bg-black/50 hover:bg-black/70"
+          className="absolute top-4 left-4 text-white bg-black/50 hover:bg-black/70 z-10"
         >
           <ArrowLeft className="h-4 w-4 ml-1" />
           عودة
         </Button>
       </div>
 
-      {/* Controls and Info */}
-      <div className="container mx-auto px-4 py-6 space-y-6">
+      {/* Enhanced Controls and Info */}
+      <div className="container mx-auto px-4 py-8 space-y-8">
         {/* Title and Navigation */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold mb-2">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl lg:text-4xl font-bold">
               {content?.title}
               {episode && ` - الحلقة ${episode.episode_number}`}
               {episode?.title && `: ${episode.title}`}
             </h1>
             {episode?.season && (
-              <p className="text-muted-foreground">
+              <p className="text-xl text-muted-foreground">
                 الموسم {episode.season.season_number}
               </p>
             )}
           </div>
 
           {type === 'episode' && allEpisodes.length > 1 && (
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <Button
                 onClick={() => navigateEpisode('prev')}
                 disabled={currentEpisodeIndex === 0}
                 variant="outline"
-                size="sm"
+                size="lg"
+                className="gap-2"
               >
-                <SkipBack className="h-4 w-4 ml-1" />
+                <SkipBack className="h-5 w-5" />
                 الحلقة السابقة
               </Button>
               <Button
                 onClick={() => navigateEpisode('next')}
                 disabled={currentEpisodeIndex === allEpisodes.length - 1}
                 variant="outline"
-                size="sm"
+                size="lg"
+                className="gap-2"
               >
                 الحلقة التالية
-                <SkipForward className="h-4 w-4 mr-1" />
+                <SkipForward className="h-5 w-5" />
               </Button>
             </div>
           )}
         </div>
 
-        {/* Server Selection and Download */}
-        <div className="grid lg:grid-cols-2 gap-6">
-          <Card>
+        {/* Enhanced Server Selection and Options */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Server Selection */}
+          <Card className="lg:col-span-1">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                خيارات المشاهدة
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Settings className="h-6 w-6" />
+                سيرفرات المشاهدة
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div>
-                <label className="text-sm font-medium mb-2 block">اختر الخادم:</label>
-                <Select value={selectedServer} onValueChange={setSelectedServer}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر خادم المشاهدة" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {streamingLinks.map((link) => (
-                      <SelectItem key={link.id} value={link.id}>
-                        {link.server_name} - {link.quality}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {currentLink?.download_url && (
-                <div>
-                  <label className="text-sm font-medium mb-2 block">روابط التحميل:</label>
-                  <Button asChild variant="outline" className="w-full">
-                    <a
-                      href={currentLink.download_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                <label className="text-base font-semibold mb-3 block">اختر السيرفر:</label>
+                <div className="space-y-3">
+                  {streamingLinks.map((link) => (
+                    <div
+                      key={link.id}
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                        selectedServer === link.id
+                          ? 'border-primary bg-primary/10'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                      onClick={() => setSelectedServer(link.id)}
                     >
-                      <Download className="h-4 w-4 ml-2" />
-                      تحميل بجودة {currentLink.quality}
-                    </a>
-                  </Button>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-semibold">{link.server_name}</p>
+                          <p className="text-sm text-muted-foreground">جودة {link.quality}</p>
+                        </div>
+                        {selectedServer === link.id && (
+                          <Badge variant="default">نشط</Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
             </CardContent>
           </Card>
 
           {/* Episode List for Series */}
           {type === 'episode' && allEpisodes.length > 0 && (
-            <Card>
+            <Card className="lg:col-span-2">
               <CardHeader>
-                <CardTitle>حلقات الموسم {episode?.season?.season_number}</CardTitle>
+                <CardTitle className="text-xl">حلقات الموسم {episode?.season?.season_number}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="max-h-80 overflow-y-auto space-y-2">
+                <div className="max-h-96 overflow-y-auto space-y-3">
                   {allEpisodes.map((ep, index) => (
                     <Link
                       key={ep.id}
                       to={`/watch/episode/${ep.id}`}
-                      className={`block p-3 rounded-lg transition-smooth ${
+                      className={`block p-4 rounded-lg transition-all border-2 ${
                         ep.id === id
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-background-secondary hover:bg-muted'
+                          ? 'border-primary bg-primary/10'
+                          : 'border-border hover:border-primary/50 hover:bg-muted/50'
                       }`}
                     >
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">
-                          الحلقة {ep.episode_number}
-                          {ep.title && `: ${ep.title}`}
-                        </span>
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-1">
+                          <h4 className="font-semibold text-lg">
+                            الحلقة {ep.episode_number}
+                            {ep.title && `: ${ep.title}`}
+                          </h4>
+                          {ep.id === id && (
+                            <Badge variant="default" className="text-xs">جاري المشاهدة</Badge>
+                          )}
+                        </div>
                         {ep.duration && (
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-muted-foreground font-medium">
                             {Math.floor(ep.duration / 60)}:{String(ep.duration % 60).padStart(2, '0')}
                           </span>
                         )}
@@ -380,24 +385,109 @@ export default function WatchPage({ type }: WatchPageProps = { type: 'movie' }) 
               </CardContent>
             </Card>
           )}
+
+          {/* Movie Servers Display */}
+          {type === 'movie' && (
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="text-xl">السيرفرات المتاحة</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {streamingLinks.map((link) => (
+                    <div
+                      key={link.id}
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                        selectedServer === link.id
+                          ? 'border-primary bg-primary/10'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                      onClick={() => setSelectedServer(link.id)}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-semibold">{link.server_name}</h4>
+                          {selectedServer === link.id && (
+                            <Badge variant="default">نشط</Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">جودة {link.quality}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
-        {/* Available Servers */}
+        {/* Download Servers Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Download className="h-6 w-6" />
+              سيرفرات التحميل
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {streamingLinks
+                .filter(link => link.download_url)
+                .map((link) => (
+                <Card key={`download-${link.id}`} className="border-2 hover:border-primary/50 transition-all">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-semibold">{link.server_name}</h4>
+                          <p className="text-sm text-muted-foreground">جودة {link.quality}</p>
+                        </div>
+                        <Badge variant="outline">تحميل</Badge>
+                      </div>
+                      <Button asChild variant="outline" className="w-full gap-2">
+                        <a
+                          href={link.download_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Download className="h-4 w-4" />
+                          تحميل {link.quality}
+                        </a>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              
+              {streamingLinks.filter(link => link.download_url).length === 0 && (
+                <div className="col-span-full text-center py-8 text-muted-foreground">
+                  <Download className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>لا توجد روابط تحميل متاحة حالياً</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quality Selection */}
         {streamingLinks.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>الخوادم المتاحة</CardTitle>
+              <CardTitle className="text-xl">الجودات المتاحة</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {streamingLinks.map((link) => (
+              <div className="flex flex-wrap gap-3">
+                {[...new Set(streamingLinks.map(link => link.quality))].map((quality) => (
                   <Badge
-                    key={link.id}
-                    variant={selectedServer === link.id ? 'default' : 'secondary'}
-                    className="cursor-pointer"
-                    onClick={() => setSelectedServer(link.id)}
+                    key={quality}
+                    variant={currentLink?.quality === quality ? 'default' : 'outline'}
+                    className="cursor-pointer px-4 py-2 text-sm"
+                    onClick={() => {
+                      const linkWithQuality = streamingLinks.find(link => link.quality === quality);
+                      if (linkWithQuality) setSelectedServer(linkWithQuality.id);
+                    }}
                   >
-                    {link.server_name} ({link.quality})
+                    {quality}
                   </Badge>
                 ))}
               </div>
