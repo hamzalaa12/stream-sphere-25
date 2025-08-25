@@ -388,7 +388,7 @@ export const EnhancedContentCard = ({
           {rating && rating > 0 && (
             <div className="flex items-center gap-1 bg-black/70 px-2 py-1 rounded-full backdrop-blur-sm">
               <Star className="h-3 w-3 text-yellow-400 fill-current" />
-              <span className="text-xs text-white font-medium">{rating.toFixed(1)}</span>
+              <span className="text-xs text-white font-medium">{rating ? rating.toFixed(1) : 'غير متاح'}</span>
             </div>
           )}
 
