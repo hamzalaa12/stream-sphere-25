@@ -243,21 +243,23 @@ export const EnhancedContentCard = ({
   };
 
   return (
-    <Card
-      ref={cardRef}
-      className={getCardClasses()}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={onClick}
+    <ScaleIn triggerOnScroll threshold={0.1}>
+      <HoverAnimation hoverClass="hover-lift hover-glow">
+        <Card
+          ref={cardRef}
+          className={getCardClasses()}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onClick={onClick}
     >
       {/* Image Container */}
       <div className={`relative ${getImageAspect()} overflow-hidden bg-background-secondary`}>
-        {/* Main Image */}
+        {/* Main Image with Enhanced Animation */}
         {(poster_url || backdrop_url) ? (
           <img
             src={(variant === 'large' || variant === 'hero') ? (backdrop_url || poster_url) : (poster_url || backdrop_url)}
             alt={title_ar || title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110 will-change-transform card-image"
             loading="lazy"
           />
         ) : (
@@ -276,50 +278,53 @@ export const EnhancedContentCard = ({
         <div className={`absolute inset-0 bg-black/60 transition-all duration-500 ${
           isHovered ? 'opacity-100' : 'opacity-0'
         }`}>
-          {/* Main Play Button */}
+          {/* Main Play Button with Enhanced Animation */}
           <div className="absolute inset-0 flex items-center justify-center">
             <Button
               size={variant === 'large' || variant === 'hero' ? 'lg' : 'default'}
-              className="bg-primary hover:bg-primary/90 text-white shadow-lg backdrop-blur-sm border border-white/20 transform hover:scale-110 transition-all duration-300"
+              className="bg-primary hover:bg-primary/90 text-white shadow-lg backdrop-blur-sm border border-white/20 transform hover:scale-110 transition-all duration-300 btn-ripple animate-scale-in-bounce"
             >
               <Play className={`${variant === 'large' || variant === 'hero' ? 'h-6 w-6' : 'h-4 w-4'} ml-1`} />
               مشاهدة
             </Button>
           </div>
 
-          {/* Action Buttons */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2">
+          {/* Action Buttons with Stagger Animation */}
+          <div className="absolute top-3 left-3 flex flex-col gap-2 stagger-children">
             <Button
               variant="ghost"
               size="icon"
-              className="bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm border border-white/20 rounded-full"
+              className="bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm border border-white/20 rounded-full animate-fade-in-left hover:scale-110 transition-all duration-300"
               onClick={toggleFavorite}
               disabled={isLoading}
+              style={{'--index': 0} as React.CSSProperties}
             >
-              <Heart className={`h-4 w-4 ${isFavorited ? 'fill-red-500 text-red-500' : ''}`} />
+              <Heart className={`h-4 w-4 transition-all duration-300 ${isFavorited ? 'fill-red-500 text-red-500 animate-pulse' : 'hover:scale-125'}`} />
             </Button>
             
             <Button
               variant="ghost"
               size="icon"
-              className="bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm border border-white/20 rounded-full"
+              className="bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm border border-white/20 rounded-full animate-fade-in-left hover:scale-110 transition-all duration-300"
               onClick={addToWatchlist}
               disabled={isLoading}
+              style={{'--index': 1} as React.CSSProperties}
             >
               {isInWatchlist ? (
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-green-500 animate-scale-in-bounce" />
               ) : (
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4 hover:rotate-90 transition-transform duration-300" />
               )}
             </Button>
 
             <Button
               variant="ghost"
               size="icon"
-              className="bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm border border-white/20 rounded-full"
+              className="bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm border border-white/20 rounded-full animate-fade-in-left hover:scale-110 transition-all duration-300"
               onClick={shareContent}
+              style={{'--index': 2} as React.CSSProperties}
             >
-              <Share2 className="h-4 w-4" />
+              <Share2 className="h-4 w-4 hover:rotate-12 transition-transform duration-300" />
             </Button>
           </div>
 
@@ -474,10 +479,12 @@ export const EnhancedContentCard = ({
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-          <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
+          <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
     </Card>
+      </HoverAnimation>
+    </ScaleIn>
   );
 };
