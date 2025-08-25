@@ -9,7 +9,7 @@ interface ContentItem {
   title: string;
   title_ar?: string;
   type: 'movie' | 'series' | 'anime';
-  rating: number;
+  rating?: number;
   year: number;
   categories: string[];
   viewCount: number;
@@ -32,7 +32,7 @@ interface Episode {
       title_ar?: string;
       content_type: string;
       poster_url?: string;
-      rating: number;
+      rating?: number;
       categories: string[];
     };
   };
