@@ -205,7 +205,7 @@ export const TrendingSection = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                            <span>{item.rating.toFixed(1)}</span>
+                            <span>{item.rating ? item.rating.toFixed(1) : 'غير متاح'}</span>
                           </div>
                         </div>
                       </div>
