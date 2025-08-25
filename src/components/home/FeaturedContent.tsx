@@ -251,8 +251,16 @@ export const FeaturedContent = () => {
           {anime.map((animeItem) => (
             <div key={animeItem.id} className="flex-none w-48">
               <ContentCard
-                {...animeItem}
-                categories={getCategoryLabels(animeItem.categories)}
+                id={animeItem.id}
+                title={animeItem.title}
+                title_ar={animeItem.title_ar}
+                poster_url={animeItem.poster_url}
+                backdrop_url={animeItem.backdrop_url}
+                rating={animeItem.rating}
+                year={animeItem.year}
+                type={animeItem.type}
+                categories={getCategoryLabels(animeItem.categories || [])}
+                viewCount={animeItem.viewCount}
                 onClick={() => window.location.href = `/content/${animeItem.id}`}
               />
             </div>
