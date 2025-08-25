@@ -198,8 +198,16 @@ export const FeaturedContent = () => {
           {series.map((seriesItem) => (
             <div key={seriesItem.id} className="flex-none w-48">
               <ContentCard
-                {...seriesItem}
-                categories={getCategoryLabels(seriesItem.categories)}
+                id={seriesItem.id}
+                title={seriesItem.title}
+                title_ar={seriesItem.title_ar}
+                poster_url={seriesItem.poster_url}
+                backdrop_url={seriesItem.backdrop_url}
+                rating={seriesItem.rating}
+                year={seriesItem.year}
+                type={seriesItem.type}
+                categories={getCategoryLabels(seriesItem.categories || [])}
+                viewCount={seriesItem.viewCount}
                 onClick={() => window.location.href = `/content/${seriesItem.id}`}
               />
             </div>
