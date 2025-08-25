@@ -204,7 +204,7 @@ export const CategoryShowcase = () => {
                         </p>
                         <div className="flex items-center gap-2 text-xs opacity-75">
                           <Star className="h-3 w-3 fill-current" />
-                          <span>{item.rating.toFixed(1)}</span>
+                          <span>{item.rating ? item.rating.toFixed(1) : 'غير متاح'}</span>
                         </div>
                       </div>
                     </div>
