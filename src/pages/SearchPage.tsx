@@ -330,11 +330,13 @@ export default function SearchPage() {
                   key={item.id}
                   id={item.id}
                   title={item.title}
-                  posterUrl={item.poster_url}
+                  title_ar={item.title}
+                  poster_url={item.poster_url}
+                  backdrop_url={item.backdrop_url}
                   rating={item.rating}
                   year={item.release_date ? new Date(item.release_date).getFullYear() : undefined}
                   type={item.content_type as 'movie' | 'series' | 'anime'}
-                  categories={item.categories}
+                  categories={item.categories || []}
                   viewCount={item.view_count}
                   onClick={() => window.location.href = `/content/${item.id}`}
                 />

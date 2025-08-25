@@ -4,14 +4,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import ContentDetail from "./pages/ContentDetail";
-import WatchPage from "./pages/WatchPage";
-import SearchPage from "./pages/SearchPage";
-import Profile from "./pages/Profile";
-import Admin from "./pages/Admin";
-import Settings from "./pages/Settings";
+
 import CategoryPage from "./pages/CategoryPage";
+import EnhancedCategoryPage from "./pages/EnhancedCategoryPage";
+import ContentDetail from "./pages/ContentDetail";
+import EnhancedContentDetail from "./pages/EnhancedContentDetail";
+import WatchPage from "./pages/WatchPage";
+import EnhancedWatchPage from "./pages/EnhancedWatchPage";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -23,14 +23,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/content/:id" element={<ContentDetail />} />
-          <Route path="/watch/:id" element={<WatchPage type="movie" />} />
-          <Route path="/watch/episode/:episodeId" element={<WatchPage type="episode" />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/profile" element={<Profile />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/category/:category" element={<CategoryPage />} />
+          <Route path="/admin-enhanced" element={<EnhancedAdmin />} />
+          <Route path="/profile" element={<Profile />} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

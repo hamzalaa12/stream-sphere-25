@@ -141,15 +141,17 @@ export default function CategoryPage() {
         {content.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {content.map((item) => (
-              <ContentCard 
+              <ContentCard
                 key={item.id}
                 id={item.id}
                 title={item.title}
-                posterUrl={item.poster_url}
+                title_ar={item.title}
+                poster_url={item.poster_url}
+                backdrop_url={item.backdrop_url}
                 rating={item.rating}
                 year={item.release_date ? new Date(item.release_date).getFullYear() : undefined}
                 type={item.content_type}
-                categories={item.categories}
+                categories={item.categories || []}
                 viewCount={item.view_count}
                 onClick={() => window.location.href = `/content/${item.id}`}
               />

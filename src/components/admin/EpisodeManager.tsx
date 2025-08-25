@@ -50,8 +50,16 @@ interface Season {
   episode_count: number | null;
   content: {
     title: string;
+    title_ar: string | null;
     content_type: string;
   };
+}
+
+interface Content {
+  id: string;
+  title: string;
+  title_ar: string | null;
+  content_type: 'series' | 'anime';
 }
 
 interface StreamingLink {
@@ -65,10 +73,14 @@ export default function EpisodeManager() {
   const { toast } = useToast();
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [seasons, setSeasons] = useState<Season[]>([]);
+  const [content, setContent] = useState<Content[]>([]);
   const [filteredEpisodes, setFilteredEpisodes] = useState<Episode[]>([]);
+  const [filteredSeasons, setFilteredSeasons] = useState<Season[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedContent, setSelectedContent] = useState<string>('all');
   const [selectedSeason, setSelectedSeason] = useState<string>('all');
+  const [contentSearchTerm, setContentSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingEpisode, setEditingEpisode] = useState<Episode | null>(null);
   
@@ -95,14 +107,28 @@ export default function EpisodeManager() {
     filterEpisodes();
   }, [episodes, searchTerm, selectedSeason]);
 
+  useEffect(() => {
+    filterSeasons();
+  }, [seasons, selectedContent, contentSearchTerm]);
+
   const fetchData = async () => {
     try {
+      // جلب المحتوى (المسلسلات والأنمي فقط)
+      const { data: contentData, error: contentError } = await supabase
+        .from('content')
+        .select('id, title, title_ar, content_type')
+        .in('content_type', ['series', 'anime'])
+        .order('title');
+
+      if (contentError) throw contentError;
+      setContent(contentData || []);
+
       // جلب المواسم المتاحة
       const { data: seasonsData, error: seasonsError } = await supabase
         .from('seasons')
         .select(`
           *,
-          content(title, content_type)
+          content(title, title_ar, content_type)
         `)
         .order('season_number');
 
@@ -116,7 +142,7 @@ export default function EpisodeManager() {
           *,
           season:seasons(
             season_number,
-            content:content(title, content_type)
+            content:content(title, title_ar, content_type)
           ),
           streaming_links(*)
         `)
@@ -142,7 +168,8 @@ export default function EpisodeManager() {
     if (searchTerm) {
       filtered = filtered.filter(episode =>
         episode.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        episode.season.content.title.toLowerCase().includes(searchTerm.toLowerCase())
+        episode.season.content.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        episode.season.content.title_ar?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -151,6 +178,23 @@ export default function EpisodeManager() {
     }
 
     setFilteredEpisodes(filtered);
+  };
+
+  const filterSeasons = () => {
+    let filtered = seasons;
+
+    if (selectedContent !== 'all') {
+      filtered = filtered.filter(season => season.content_id === selectedContent);
+    }
+
+    if (contentSearchTerm) {
+      filtered = filtered.filter(season =>
+        season.content.title.toLowerCase().includes(contentSearchTerm.toLowerCase()) ||
+        season.content.title_ar?.toLowerCase().includes(contentSearchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredSeasons(filtered);
   };
 
   const resetForm = () => {
@@ -261,7 +305,7 @@ export default function EpisodeManager() {
         toast({ title: 'تم', description: 'تم إضافة الحلقة بنجاح' });
       }
 
-      // إضافة روابط المشاهدة والتحميل
+      // إ��افة روابط المشاهدة والتحميل
       const validLinks = streamingLinks.filter(link => 
         link.server_name.trim() && link.streaming_url.trim()
       );
@@ -387,7 +431,7 @@ export default function EpisodeManager() {
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
-              إضافة حلقة جديدة
+              إضافة ح��قة جديدة
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -420,6 +464,54 @@ export default function EpisodeManager() {
                     <h3 className="text-lg font-semibold">معلومات الحلقة</h3>
                   </div>
 
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="content_search">البحث عن المسلسل/الأنمي</Label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="content_search"
+                          placeholder="اكتب اسم المسلسل أو الأنمي..."
+                          value={contentSearchTerm}
+                          onChange={(e) => setContentSearchTerm(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="content_filter">تصفية حسب النوع</Label>
+                      <Select
+                        value={selectedContent}
+                        onValueChange={(value) => {
+                          setSelectedContent(value);
+                          setFormData({...formData, season_id: ''});
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر نوع المحتوى" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">جميع المحتوى</SelectItem>
+                          {content.filter(c =>
+                            c.content_type === 'series'
+                          ).map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              📺 {c.title_ar || c.title} (مسلسل)
+                            </SelectItem>
+                          ))}
+                          {content.filter(c =>
+                            c.content_type === 'anime'
+                          ).map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              🎌 {c.title_ar || c.title} (أنمي)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="season_id">الموسم *</Label>
@@ -431,13 +523,18 @@ export default function EpisodeManager() {
                           <SelectValue placeholder="اختر الموسم" />
                         </SelectTrigger>
                         <SelectContent>
-                          {seasons.map((season) => (
+                          {filteredSeasons.map((season) => (
                             <SelectItem key={season.id} value={season.id}>
-                              {season.content.title} - الموسم {season.season_number}
+                              {season.content.title_ar || season.content.title} - الموسم {season.season_number}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
+                      {filteredSeasons.length === 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          لا توجد مواسم متاحة. يرجى إضافة مسلسل أو أنمي أولاً.
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="episode_number">رقم الحلقة *</Label>
@@ -643,19 +740,34 @@ export default function EpisodeManager() {
             className="pl-10"
           />
         </div>
-        <Select value={selectedSeason} onValueChange={setSelectedSeason}>
-          <SelectTrigger className="w-full sm:w-64">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">جميع المواسم</SelectItem>
-            {seasons.map((season) => (
-              <SelectItem key={season.id} value={season.id}>
-                {season.content.title} - الموسم {season.season_number}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select value={selectedContent} onValueChange={setSelectedContent}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="نوع المحتوى" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع المحتوى</SelectItem>
+              {content.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.content_type === 'series' ? '📺' : '🎌'} {c.title_ar || c.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={selectedSeason} onValueChange={setSelectedSeason}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="الموسم" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع المواسم</SelectItem>
+              {filteredSeasons.map((season) => (
+                <SelectItem key={season.id} value={season.id}>
+                  الموسم {season.season_number}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Episodes Grid */}

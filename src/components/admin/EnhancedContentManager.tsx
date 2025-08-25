@@ -14,10 +14,12 @@ import { VideoUploader } from '@/components/upload/VideoUploader';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Constants } from '@/integrations/supabase/types';
+import { cleanupTestData, cleanupLowQualityContent } from '@/utils/cleanupTestData';
+import { formatContentError } from '@/utils/errorHandling';
 
 interface Content {
   id: string;
-  title: string; // الاسم الإنجليزي الرئيسي
+  title: string; // الاسم الإنجليزي الرئي��ي
   title_ar?: string; // الاسم العربي
   title_en?: string; // للتوافق مع البيانات القديمة
   alternative_titles?: string[];
@@ -118,7 +120,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
             const { data: episodes } = await supabase
               .from('episodes')
               .select('id')
-              .in('season_id', 
+              .in('season_id',
                 (await supabase
                   .from('seasons')
                   .select('id')
@@ -131,7 +133,11 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
               total_episodes: episodes?.length || 0
             };
           }
-          return item;
+          return {
+            ...item,
+            season_count: 0,
+            total_episodes: 0
+          };
         })
       );
 
@@ -154,11 +160,7 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
     if (searchTerm) {
       filtered = filtered.filter(item =>
         item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.title_ar && item.title_ar.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (item.title_en && item.title_en.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (item.alternative_titles && item.alternative_titles.some(altTitle =>
-          altTitle.toLowerCase().includes(searchTerm.toLowerCase())
-        ))
+        (item.title_en && item.title_en.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -243,10 +245,10 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
         .map(title => title.trim())
         .filter(title => title.length > 0);
 
+      // Map form data to database schema fields
       const contentData = {
-        title: formData.title, // الاسم الإنجليزي كاسم رئيسي
-        title_ar: formData.title_ar || null, // الاسم العربي
-        alternative_titles: alternativeTitlesArray.length > 0 ? alternativeTitlesArray : null,
+        title: formData.title_ar || formData.title, // Use Arabic title as main title if available
+        title_en: formData.title, // Store English title in title_en field
         description: formData.description || null,
         poster_url: formData.poster_url || null,
         backdrop_url: formData.backdrop_url || null,
@@ -255,10 +257,9 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
         release_date: formData.release_date || null,
         duration: formData.duration || null,
         content_type: formData.content_type,
-        categories: normalizedCategories as any,
+        categories: normalizedCategories.length > 0 ? normalizedCategories as any : null,
         language: formData.language,
         country: formData.country || null,
-        age_rating: formData.age_rating || null,
         is_netflix: formData.is_netflix
       };
 
@@ -308,10 +309,12 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
       fetchContent();
       onStatsUpdate();
     } catch (error: any) {
-      console.error('Error saving content:', error);
+      const formattedError = formatContentError(error);
+      console.error('Error saving content:', error, formattedError);
+
       toast({
-        title: 'خطأ',
-        description: `فشل في حفظ المحتوى: ${error?.message || ''}`,
+        title: formattedError.title,
+        description: formattedError.description,
         variant: 'destructive',
       });
     }
@@ -320,25 +323,25 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
   const handleEdit = (contentItem: Content) => {
     setEditingContent(contentItem);
     setFormData({
-      title: contentItem.title, // الاسم الإنجليزي
-      title_ar: contentItem.title_ar || contentItem.title_en || '', // الاسم العربي
-      alternative_titles: contentItem.alternative_titles?.join(', ') || '',
+      title: contentItem.title_en || '', // English title
+      title_ar: contentItem.title || '', // Arabic title (stored in main title field)
+      alternative_titles: '', // Not supported in current schema
       content_type: contentItem.content_type,
       categories: contentItem.categories?.join(', ') || '',
       release_date: contentItem.release_date || '',
-      season_count: contentItem.season_count || 0,
-      total_episodes: contentItem.total_episodes || 0,
-      rating: contentItem.rating,
+      season_count: 0, // Will be calculated from seasons table
+      total_episodes: 0, // Will be calculated from episodes table
+      rating: contentItem.rating || 0,
       description: contentItem.description || '',
       poster_url: contentItem.poster_url || '',
       backdrop_url: contentItem.backdrop_url || '',
-      age_rating: contentItem.age_rating || '',
-      language: contentItem.language,
+      age_rating: '', // Not in current schema
+      language: contentItem.language || 'ar',
       duration: contentItem.duration || 0,
       tags: '',
       country: contentItem.country || '',
       trailer_url: contentItem.trailer_url || '',
-      is_netflix: contentItem.is_netflix
+      is_netflix: contentItem.is_netflix || false
     });
     setIsAddDialogOpen(true);
   };
@@ -362,6 +365,56 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
       toast({
         title: 'خطأ',
         description: 'فشل في حذف المحتوى',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleCleanupTestData = async () => {
+    if (!confirm('هل أنت متأكد من حذف جميع البيانات التجريبية؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
+
+    try {
+      const result = await cleanupTestData();
+      toast({
+        title: result.success ? 'تم' : 'خطأ',
+        description: result.message,
+        variant: result.success ? 'default' : 'destructive'
+      });
+
+      if (result.success) {
+        fetchContent();
+        onStatsUpdate();
+      }
+    } catch (error) {
+      console.error('Error during cleanup:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل في تنظيف البيانات',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleCleanupLowQuality = async () => {
+    if (!confirm('هل أنت متأ��د من حذف المحتوى منخفض الجودة؟ سيتم حذف المحتوى بتقييم 0 أو مشاهدات أقل من 10.')) return;
+
+    try {
+      const result = await cleanupLowQualityContent();
+      toast({
+        title: result.success ? 'تم' : 'خطأ',
+        description: result.message,
+        variant: result.success ? 'default' : 'destructive'
+      });
+
+      if (result.success) {
+        fetchContent();
+        onStatsUpdate();
+      }
+    } catch (error) {
+      console.error('Error during low quality cleanup:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل في تنظيف المحتوى منخفض الجودة',
         variant: 'destructive'
       });
     }
@@ -407,16 +460,18 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
   return (
     <div className="space-y-6">
       {/* Header and Actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold">إدارة المحتوى</h2>
-          <p className="text-muted-foreground">إضافة وتعديل الأفلام والمسلسلات والأنمي</p>
-        </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 className="text-2xl font-bold">إدارة المحتوى</h2>
+            <p className="text-muted-foreground">إضافة وتعديل الأفلام والمسلسلات والأنمي</p>
+          </div>
 
-        <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
-          setIsAddDialogOpen(open);
-          if (!open) resetForm();
-        }}>
+          <div className="flex gap-2">
+            <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
+              setIsAddDialogOpen(open);
+              if (!open) resetForm();
+            }}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
@@ -725,6 +780,28 @@ export default function EnhancedContentManager({ onStatsUpdate }: EnhancedConten
             </div>
           </DialogContent>
         </Dialog>
+
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={handleCleanupTestData}
+          className="gap-2"
+        >
+          <Trash2 className="h-4 w-4" />
+          تنظيف البيانات التجريبية
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleCleanupLowQuality}
+          className="gap-2"
+        >
+          <Trash2 className="h-4 w-4" />
+          حذف المحتوى منخفض الجودة
+        </Button>
+          </div>
+        </div>
       </div>
 
       {/* Search and Filters */}

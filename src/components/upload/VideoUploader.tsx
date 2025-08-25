@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { VideoUploadService, UploadSession, VideoFile } from '@/services/VideoUploadService';
 import { supabase } from '@/integrations/supabase/client';
+import { parseUploadError, getUploadErrorMessage, shouldRetryUpload, getRetryDelay, logUploadError } from '@/utils/uploadErrorHandling';
 
 interface VideoUploaderProps {
   contentId?: string;
@@ -77,7 +78,7 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
       if (error) throw error;
       setAvailableServers(servers || []);
       
-      // تحديد السيرفر الأول كافتراضي
+      // تحديد السيرفر ��لأول كافتراضي
       if (servers && servers.length > 0) {
         setSelectedServers([servers[0].id]);
       }
@@ -140,8 +141,22 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
       setUploadSession(session);
       setTotalChunks(session.total_chunks);
 
+      // تحديد نقطة البداية (في حالة استئناف الرفع)
+      const resumeFromChunk = await VideoUploadService.resumeUpload(session.id);
+      if (resumeFromChunk > 0) {
+        console.log(`Resuming upload from chunk ${resumeFromChunk + 1}`);
+        setUploadedChunks(resumeFromChunk);
+        const initialProgress = (resumeFromChunk / session.total_chunks) * 100;
+        setUploadProgress(initialProgress);
+
+        toast({
+          title: 'استئناف الرفع',
+          description: `تم استئناف الرفع من القطعة ${resumeFromChunk + 1}`,
+        });
+      }
+
       // بدء رفع القطع
-      await uploadFileInChunks(selectedFile, session.id);
+      await uploadFileInChunks(selectedFile, session.id, resumeFromChunk);
 
       // عند الانتهاء
       onUploadComplete?.(videoFile);
@@ -153,10 +168,21 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
 
     } catch (error) {
       console.error('Upload error:', error);
-      setUploadError(error instanceof Error ? error.message : 'فشل في رفع الفيديو');
+
+      const uploadError = parseUploadError(error, { sessionId: uploadSession?.id });
+      const errorMessage = getUploadErrorMessage(uploadError);
+
+      logUploadError(uploadError, uploadSession?.id, {
+        fileSize: selectedFile?.size,
+        totalChunks,
+        uploadedChunks
+      });
+
+      setUploadError(errorMessage.description);
+
       toast({
-        title: 'خطأ في الرفع',
-        description: error instanceof Error ? error.message : 'فشل في رفع الفيديو',
+        title: errorMessage.title,
+        description: errorMessage.description + (errorMessage.action ? `\n${errorMessage.action}` : ''),
         variant: 'destructive'
       });
     } finally {
@@ -164,14 +190,16 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
     }
   };
 
-  // رفع الملف بالقطع
-  const uploadFileInChunks = async (file: File, sessionId: string) => {
+  // رفع الملف بالقطع مع إمكانية الاستئناف
+  const uploadFileInChunks = async (file: File, sessionId: string, resumeFromChunk = 0) => {
     const chunkSize = 1024 * 1024; // 1MB
     const totalChunks = Math.ceil(file.size / chunkSize);
-    let uploadedBytes = 0;
+    let uploadedBytes = resumeFromChunk * chunkSize;
     const startTime = Date.now();
 
-    for (let chunkNumber = 0; chunkNumber < totalChunks; chunkNumber++) {
+    console.log(`Starting upload from chunk ${resumeFromChunk} of ${totalChunks}`);
+
+    for (let chunkNumber = resumeFromChunk; chunkNumber < totalChunks; chunkNumber++) {
       if (isPaused) {
         // انتظار حتى يتم الاستئناف
         await new Promise(resolve => {
@@ -213,7 +241,21 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
           }
         );
       } catch (error) {
-        throw new Error(`فشل في رفع القط��ة ${chunkNumber + 1}: ${error}`);
+        console.error(`Chunk ${chunkNumber + 1} upload failed:`, error);
+
+        const uploadError = parseUploadError(error, {
+          chunkNumber,
+          sessionId
+        });
+
+        logUploadError(uploadError, sessionId, {
+          fileName: file.name,
+          fileSize: file.size,
+          chunkSize: chunkData.byteLength,
+          totalChunks
+        });
+
+        throw new Error(`فشل في رفع القطعة ${chunkNumber + 1}: ${uploadError.message}`);
       }
     }
   };
@@ -456,7 +498,7 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
                       disabled={!isUploading}
                     >
                       {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-                      {isPaused ? 'استئناف' : 'إيقاف مؤقت'}
+                      {isPaused ? '��ستئناف' : 'إيقاف مؤقت'}
                     </Button>
                     <Button
                       variant="destructive"
@@ -496,7 +538,49 @@ export const VideoUploader: React.FC<VideoUploaderProps> = ({
             {uploadError && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{uploadError}</AlertDescription>
+                <AlertDescription>
+                  {uploadError}
+                  {uploadSession && (
+                    <div className="mt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          setUploadError(null);
+                          setIsUploading(true);
+                          try {
+                            const resumeFromChunk = await VideoUploadService.resumeUpload(uploadSession.id);
+                            await uploadFileInChunks(selectedFile!, uploadSession.id, resumeFromChunk);
+
+                            toast({
+                              title: 'نجح الرفع',
+                              description: 'تم استكمال رفع الفيديو بنجاح',
+                            });
+
+                            onUploadComplete?.({
+                              id: uploadSession.video_file_id,
+                              original_filename: selectedFile!.name,
+                              file_size_bytes: selectedFile!.size,
+                              mime_type: selectedFile!.type,
+                              upload_status: 'completed',
+                              processing_status: 'processing'
+                            } as VideoFile);
+
+                          } catch (retryError) {
+                            const retryUploadError = parseUploadError(retryError);
+                            const retryErrorMessage = getUploadErrorMessage(retryUploadError);
+                            setUploadError(retryErrorMessage.description);
+                          } finally {
+                            setIsUploading(false);
+                          }
+                        }}
+                        disabled={isUploading}
+                      >
+                        إعادة المحاولة
+                      </Button>
+                    </div>
+                  )}
+                </AlertDescription>
               </Alert>
             )}
 

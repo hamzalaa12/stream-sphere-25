@@ -366,11 +366,14 @@ export default function Profile() {
                      <ContentCard
                         id={favorite.content.id}
                         title={favorite.content.title}
-                        posterUrl={favorite.content.poster_url}
+                        title_ar={favorite.content.title}
+                        poster_url={favorite.content.poster_url}
+                        backdrop_url={favorite.content.backdrop_url}
                         rating={favorite.content.rating}
                         year={favorite.content.release_date ? new Date(favorite.content.release_date).getFullYear() : undefined}
                         type={favorite.content.content_type as 'movie' | 'series' | 'anime'}
-                        categories={favorite.content.categories}
+                        categories={favorite.content.categories || []}
+                        viewCount={favorite.content.view_count}
                         onClick={() => window.location.href = `/content/${favorite.content.id}`}
                       />
                     <Button
