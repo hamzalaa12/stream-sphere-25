@@ -218,19 +218,19 @@ export const EnhancedContentCard = ({
     return hours > 0 ? `${hours}س ${mins}د` : `${mins}د`;
   };
 
-  // Variant-specific styling
+  // Variant-specific styling with enhanced animations
   const getCardClasses = () => {
-    const baseClasses = "group relative overflow-hidden cursor-pointer transition-all duration-500";
-    
+    const baseClasses = "group relative overflow-hidden cursor-pointer transition-all duration-500 will-change-transform gpu-accelerated card-hover";
+
     switch (variant) {
       case 'large':
-        return `${baseClasses} hover:scale-[1.02] shadow-lg hover:shadow-2xl`;
+        return `${baseClasses} hover:scale-[1.02] hover:-translate-y-2 shadow-lg hover:shadow-2xl hover:shadow-primary/10`;
       case 'minimal':
-        return `${baseClasses} hover:scale-105 shadow-md hover:shadow-lg`;
+        return `${baseClasses} hover:scale-105 hover:-translate-y-1 shadow-md hover:shadow-lg hover:shadow-primary/5`;
       case 'hero':
-        return `${baseClasses} hover:scale-[1.01] shadow-2xl`;
+        return `${baseClasses} hover:scale-[1.01] hover:-translate-y-1 shadow-2xl hover:shadow-primary/15`;
       default:
-        return `${baseClasses} hover:scale-105 shadow-card hover:shadow-elevated`;
+        return `${baseClasses} hover:scale-105 hover:-translate-y-2 shadow-card hover:shadow-elevated hover:shadow-primary/10`;
     }
   };
 
