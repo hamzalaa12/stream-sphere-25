@@ -2,13 +2,13 @@ import React, { useState, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Play, 
-  Heart, 
-  Star, 
-  Eye, 
-  Share2, 
-  Clock, 
+import {
+  Play,
+  Heart,
+  Star,
+  Eye,
+  Share2,
+  Clock,
   Calendar,
   Info,
   Download,
@@ -22,6 +22,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { ScaleIn, HoverAnimation } from '@/components/ui/animated-component';
 
 interface EnhancedContentCardProps {
   id: string;
