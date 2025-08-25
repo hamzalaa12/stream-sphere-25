@@ -111,7 +111,7 @@ export const EnhancedContentCard = ({
     if (!user) {
       toast({
         title: 'مطلوب تسجيل الدخول',
-        description: 'يجب تسجيل الدخول لإضافة المحتوى للمفضلة'
+        description: 'يجب تسجيل الدخول لإضافة ��لمحتوى للمفضلة'
       });
       return;
     }
@@ -435,7 +435,7 @@ export const EnhancedContentCard = ({
               {rating && (
                 <div className="flex items-center gap-1">
                   <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                  <span className="font-medium">{rating.toFixed(1)}</span>
+                  <span className="font-medium">{rating ? rating.toFixed(1) : 'غير متاح'}</span>
                 </div>
               )}
             </div>
