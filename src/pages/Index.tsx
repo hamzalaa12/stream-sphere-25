@@ -11,48 +11,64 @@ import { ResponsiveContainer, LazyLoad, PerformanceMonitor } from '@/components/
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
-      <Navbar />
-      <main className="space-y-0">
-        {/* Epic Hero Section with Dynamic Content */}
-        <div className="hero-section">
-          <EnhancedHeroSection />
-        </div>
+    <PerformanceMonitor name="HomePage">
+      <div className="min-h-screen bg-background overflow-hidden">
+        <Navbar />
+        <main className="space-y-0">
+          {/* Epic Hero Section with Dynamic Content */}
+          <div className="hero-section">
+            <EnhancedHeroSection />
+          </div>
 
-        {/* Animated Sections Container */}
-        <StaggerContainer staggerDelay={200} className="space-y-0">
-          {/* Trending Content with Time Filters */}
-          <FadeInUp triggerOnScroll className="section-container">
-            <TrendingSection />
+          {/* Animated Sections Container with Responsive Layout */}
+          <ResponsiveContainer padding="none" className="space-y-8 sm:space-y-12 lg:space-y-16">
+            <StaggerContainer staggerDelay={200} className="space-y-8 sm:space-y-12 lg:space-y-16">
+              {/* Trending Content with Time Filters */}
+              <LazyLoad>
+                <FadeInUp triggerOnScroll className="section-container">
+                  <TrendingSection />
+                </FadeInUp>
+              </LazyLoad>
+
+              {/* Interactive Category Showcase */}
+              <LazyLoad>
+                <FadeInUp triggerOnScroll delay={100} className="section-container">
+                  <CategoryShowcase />
+                </FadeInUp>
+              </LazyLoad>
+
+              {/* New Releases Carousel */}
+              <LazyLoad>
+                <FadeInUp triggerOnScroll delay={200} className="section-container">
+                  <NewReleasesSection />
+                </FadeInUp>
+              </LazyLoad>
+
+              {/* Personalized Recommendations */}
+              <LazyLoad>
+                <FadeInUp triggerOnScroll delay={300} className="section-container">
+                  <RecommendationsSection />
+                </FadeInUp>
+              </LazyLoad>
+
+              {/* Enhanced Featured Content */}
+              <LazyLoad>
+                <FadeInUp triggerOnScroll delay={400} className="section-container">
+                  <FeaturedContent />
+                </FadeInUp>
+              </LazyLoad>
+            </StaggerContainer>
+          </ResponsiveContainer>
+        </main>
+
+        {/* Animated Footer */}
+        <LazyLoad>
+          <FadeInUp triggerOnScroll className="footer-container">
+            <Footer />
           </FadeInUp>
-
-          {/* Interactive Category Showcase */}
-          <FadeInUp triggerOnScroll delay={100} className="section-container">
-            <CategoryShowcase />
-          </FadeInUp>
-
-          {/* New Releases Carousel */}
-          <FadeInUp triggerOnScroll delay={200} className="section-container">
-            <NewReleasesSection />
-          </FadeInUp>
-
-          {/* Personalized Recommendations */}
-          <FadeInUp triggerOnScroll delay={300} className="section-container">
-            <RecommendationsSection />
-          </FadeInUp>
-
-          {/* Enhanced Featured Content */}
-          <FadeInUp triggerOnScroll delay={400} className="section-container">
-            <FeaturedContent />
-          </FadeInUp>
-        </StaggerContainer>
-      </main>
-
-      {/* Animated Footer */}
-      <FadeInUp triggerOnScroll className="footer-container">
-        <Footer />
-      </FadeInUp>
-    </div>
+        </LazyLoad>
+      </div>
+    </PerformanceMonitor>
   );
 };
 
