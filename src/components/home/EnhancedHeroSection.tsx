@@ -151,7 +151,7 @@ export const EnhancedHeroSection = () => {
                     </Badge>
                     <div className="flex items-center gap-1 text-accent">
                       <Star className="h-4 w-4 fill-current" />
-                      <span className="font-bold">{currentContent.rating.toFixed(1)}</span>
+                      <span className="font-bold">{currentContent.rating ? currentContent.rating.toFixed(1) : 'غير متاح'}</span>
                     </div>
                     <div className="flex items-center gap-1 text-gray-300">
                       <TrendingUp className="h-4 w-4" />
@@ -255,7 +255,7 @@ export const EnhancedHeroSection = () => {
                         onClick={() => navigate('/category/movies')}
                       >
                         <Play className="h-6 w-6 ml-2" />
-                        استك��ف المحتوى
+                        استكشف المحتوى
                       </Button>
                     </div>
                   </div>
