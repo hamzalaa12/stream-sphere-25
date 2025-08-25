@@ -152,7 +152,7 @@ export const ContentCard = ({
         </div>
 
         {/* Categories */}
-        {categories.length > 0 && (
+        {categories && categories.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {categories.slice(0, 2).map((category, index) => (
               <Badge
