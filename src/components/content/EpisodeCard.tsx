@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Play, 
-  Clock, 
-  Calendar, 
-  Eye, 
+import {
+  Play,
+  Clock,
+  Calendar,
+  Eye,
   Download,
   Check,
   Bookmark,
@@ -18,6 +18,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { FadeInUp, HoverAnimation, ProgressAnimation } from '@/components/ui/animated-component';
 
 interface EpisodeCardProps {
   id: string;
