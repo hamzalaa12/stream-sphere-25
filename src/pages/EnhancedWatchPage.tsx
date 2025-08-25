@@ -752,7 +752,8 @@ export default function EnhancedWatchPage({ type }: WatchPageProps = { type: 'mo
                         </Button>
                       ))}
                     </div>
-                  </CardContent>
+                  </div>
+                </CardContent>
                 </Card>
             </FadeInUp>
 
