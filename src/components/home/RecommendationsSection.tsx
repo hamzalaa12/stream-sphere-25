@@ -422,7 +422,7 @@ export const RecommendationsSection = () => {
             </div>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               {user 
-                ? 'اقتراحات مخصصة بناءً على تفضيلاتك وما شاهدته سابقاً'
+                ? 'اقتراحات مخصصة بناءً على تفضيلاتك وما ش��هدته سابقاً'
                 : 'اكتشف محتوى رائع قد يعجبك من مجموعتنا المتنوعة'
               }
             </p>
@@ -472,7 +472,7 @@ export const RecommendationsSection = () => {
                       rating={item.rating}
                       year={item.release_date ? new Date(item.release_date).getFullYear() : undefined}
                       type={item.content_type}
-                      categories={getCategoryLabels(item.categories)}
+                      categories={getCategoryLabels(item.categories || [])}
                       viewCount={item.view_count}
                       onClick={() => navigate(`/content/${item.id}`)}
                     />
