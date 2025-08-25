@@ -7,6 +7,7 @@ import { RecommendationsSection } from '@/components/home/RecommendationsSection
 import { FeaturedContent } from '@/components/home/FeaturedContent';
 import { Footer } from '@/components/layout/Footer';
 import { FadeInUp, StaggerContainer } from '@/components/ui/animated-component';
+import { ResponsiveContainer, LazyLoad, PerformanceMonitor } from '@/components/ui/responsive-container';
 
 const Index = () => {
   return (
