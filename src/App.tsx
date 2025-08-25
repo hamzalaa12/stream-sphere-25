@@ -4,14 +4,16 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import ContentDetail from "./pages/ContentDetail";
-import WatchPage from "./pages/WatchPage";
-import SearchPage from "./pages/SearchPage";
-import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
 import EnhancedAdmin from "./pages/EnhancedAdmin";
-import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 import CategoryPage from "./pages/CategoryPage";
+import EnhancedCategoryPage from "./pages/EnhancedCategoryPage";
+import ContentDetail from "./pages/ContentDetail";
+import EnhancedContentDetail from "./pages/EnhancedContentDetail";
+import WatchPage from "./pages/WatchPage";
+import EnhancedWatchPage from "./pages/EnhancedWatchPage";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -23,14 +25,31 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/content/:id" element={<ContentDetail />} />
-          <Route path="/watch/:id" element={<WatchPage type="movie" />} />
-          <Route path="/watch/episode/:episodeId" element={<WatchPage type="episode" />} />
-          <Route path="/search" element={<SearchPage />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin-enhanced" element={<EnhancedAdmin />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/admin" element={<EnhancedAdmin />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/category/:category" element={<CategoryPage />} />
+          
+          {/* Category Routes */}
+          <Route path="/category/:type" element={<CategoryPage />} />
+          <Route path="/category-enhanced/:type" element={<EnhancedCategoryPage />} />
+          <Route path="/category/movies" element={<EnhancedCategoryPage />} />
+          <Route path="/category/series" element={<EnhancedCategoryPage />} />
+          <Route path="/category/anime" element={<EnhancedCategoryPage />} />
+          
+          {/* Content Detail Routes */}
+          <Route path="/content/:id" element={<EnhancedContentDetail />} />
+          <Route path="/content-detail/:id" element={<ContentDetail />} />
+          
+          {/* Watch Routes */}
+          <Route path="/watch/:id" element={<EnhancedWatchPage type="movie" />} />
+          <Route path="/watch/episode/:id" element={<EnhancedWatchPage type="episode" />} />
+          <Route path="/watch-basic/:id" element={<WatchPage type="movie" />} />
+          <Route path="/watch-basic/episode/:id" element={<WatchPage type="episode" />} />
+          
+          {/* Search and Browse */}
+          <Route path="/search" element={<EnhancedCategoryPage />} />
+          <Route path="/browse" element={<EnhancedCategoryPage />} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
